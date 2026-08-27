@@ -1,23 +1,40 @@
 import React from 'react';
-import { SafeAreaView, Text } from 'react-native';
+import { Pressable, SafeAreaView, Text } from 'react-native';
 
 import { AppProviders } from '@/app/providers/AppProviders';
-import { ErrorBoundary } from '@/core/errors/ErrorBoundary';
+import { useAppDispatch } from '@/store/hooks';
+import { showToast } from '@/store/slices/toastSlice';
 
 function AppContent() {
+  const dispatch = useAppDispatch();
+
+  const handleTest = () => {
+    dispatch(
+      showToast({
+        type: 'success',
+        message: 'Amrutam toast working',
+      }),
+    );
+  };
+
   return (
     <SafeAreaView>
       <Text>Amrutam</Text>
+
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Test toast"
+        onPress={handleTest}>
+        <Text>Test Toast</Text>
+      </Pressable>
     </SafeAreaView>
   );
 }
 
 export default function App() {
   return (
-    <ErrorBoundary>
-      <AppProviders>
-        <AppContent />
-      </AppProviders>
-    </ErrorBoundary>
+    <AppProviders>
+      <AppContent />
+    </AppProviders>
   );
 }
