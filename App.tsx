@@ -2,39 +2,22 @@ import React from 'react';
 import { SafeAreaView, Text } from 'react-native';
 
 import { AppProviders } from '@/app/providers/AppProviders';
-import { useNetworkStatus } from '@/core/network/useNetworkStatus';
+import { ErrorBoundary } from '@/core/errors/ErrorBoundary';
 
 function AppContent() {
-  const {
-    isConnected,
-    isInternetReachable,
-    type,
-  } = useNetworkStatus();
-
   return (
     <SafeAreaView>
-      <Text>
-        Connection: {isConnected ? 'Connected' : 'Disconnected'}
-      </Text>
-
-      <Text>
-        Internet:{' '}
-        {isInternetReachable === null
-          ? 'Checking...'
-          : isInternetReachable
-            ? 'Available'
-            : 'Unavailable'}
-      </Text>
-
-      <Text>Type: {type}</Text>
+      <Text>Amrutam</Text>
     </SafeAreaView>
   );
 }
 
 export default function App() {
   return (
-    <AppProviders>
-      <AppContent />
-    </AppProviders>
+    <ErrorBoundary>
+      <AppProviders>
+        <AppContent />
+      </AppProviders>
+    </ErrorBoundary>
   );
 }
