@@ -9,9 +9,12 @@ import type {
 } from '@/features/consultations/types/consultation.types';
 
 import {
-    isSlotExpired,
-    isSlotBookable,
-} from '@/features/consultations/utils/slotUtils';
+    canCancelBooking,
+    canCreateBooking,
+    hasBookingConflict,
+    hasDuplicateBooking,
+} from '@/features/consultations/utils/bookingRules';
+import { isSlotExpired } from '@/features/consultations/utils/slotUtils';
 
 import { generateSlotsForDoctor } from '@/mocks/generators/slotGenerator';
 
@@ -70,40 +73,34 @@ export async function createBooking(
                 request.date,
             );
 
-
             if (!slot) {
                 throw new Error('SLOT_NOT_FOUND');
             }
 
-            if (isSlotExpired(slot)) {
-                throw new Error('SLOT_EXPIRED');
-            }
+            if (!canCreateBooking(slot)) {
+                if (isSlotExpired(slot)) {
+                    throw new Error('SLOT_EXPIRED');
+                }
 
-            if (!isSlotBookable(slot)) {
                 throw new Error('SLOT_UNAVAILABLE');
             }
 
-            const existingBooking =
-                mockDatabase.bookings.find(
-                    booking =>
-                        booking.slotId === request.slotId &&
-                        booking.status === 'confirmed',
-                );
-
-            if (existingBooking) {
+            if (
+                hasBookingConflict(
+                    mockDatabase.bookings,
+                    request.slotId,
+                )
+            ) {
                 throw new Error('BOOKING_CONFLICT');
             }
 
-            const duplicateBooking =
-                mockDatabase.bookings.find(
-                    booking =>
-                        booking.slotId === request.slotId &&
-                        booking.patientName.trim().toLowerCase() ===
-                        request.patientName.trim().toLowerCase() &&
-                        booking.status === 'confirmed',
-                );
-
-            if (duplicateBooking) {
+            if (
+                hasDuplicateBooking(
+                    mockDatabase.bookings,
+                    request.slotId,
+                    request.patientName,
+                )
+            ) {
                 throw new Error('DUPLICATE_BOOKING');
             }
 
@@ -168,14 +165,12 @@ export async function cancelBooking(
                 throw new Error('BOOKING_NOT_CANCELLABLE');
             }
 
-            const now = new Date();
-
-            if (
-                new Date(booking.scheduledAt).getTime() <=
-                now.getTime()
-            ) {
+            if (!canCancelBooking(booking)) {
                 throw new Error('BOOKING_EXPIRED');
             }
+
+            const now = new Date();
+
 
             const updatedBooking: Booking = {
                 ...booking,

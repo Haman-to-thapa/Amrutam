@@ -13,18 +13,17 @@ import type { Booking } from '../types/consultation.types';
 
 type Props = {
     booking: Booking;
+    doctorName?: string;
     onCancel: (booking: Booking) => void;
     isCancelling: boolean;
 };
 
 function UpcomingBookingCardComponent({
     booking,
+    doctorName,
     onCancel,
     isCancelling,
 }: Props) {
-
-
-
     const handleCancelPress = () => {
         Alert.alert(
             'Cancel consultation',
@@ -50,8 +49,9 @@ function UpcomingBookingCardComponent({
             </Text>
 
             <Text style={styles.row}>
-                Doctor ID: {booking.doctorId}
+                Doctor: {doctorName ?? booking.doctorId}
             </Text>
+
 
             <Text style={styles.row}>
                 Date:{' '}

@@ -1,6 +1,11 @@
 import { baseApi } from '@/core/api/baseApi';
 import type { PaginatedResponse } from '@/core/api/api.types';
-import { getDoctorSlots, getDoctors, createBooking } from '@/mocks/repositories';
+import {
+    getDoctorSlots,
+    getDoctors,
+    getDoctorById,
+    createBooking,
+} from '@/mocks/repositories';
 import type {
     Doctor,
     DoctorListParams,
@@ -48,6 +53,35 @@ export const consultationApi = baseApi.injectEndpoints({
                         })),
                     ]
                     : [{ type: 'Doctor' as const, id: 'LIST' }],
+        }),
+
+        getDoctorById: builder.query<Doctor, string>({
+            async queryFn(doctorId) {
+                try {
+                    const doctor = await getDoctorById(doctorId);
+
+                    return {
+                        data: doctor,
+                    };
+                } catch (error) {
+                    return {
+                        error: {
+                            code: 'NOT_FOUND',
+                            message: 'Doctor could not be found.',
+                            details:
+                                error instanceof Error
+                                    ? error.message
+                                    : undefined,
+                        },
+                    };
+                }
+            },
+            providesTags: (_result, _error, doctorId) => [
+                {
+                    type: 'Doctor' as const,
+                    id: doctorId,
+                },
+            ],
         }),
 
         getDoctorSlots: builder.query<
@@ -185,6 +219,8 @@ export const consultationApi = baseApi.injectEndpoints({
 
 export const {
     useGetDoctorsQuery,
+    useGetDoctorByIdQuery,
     useGetDoctorSlotsQuery,
     useCreateBookingMutation,
 } = consultationApi;
+
