@@ -8,6 +8,7 @@ import { paginate } from './pagination';
 import { generateSlotsForDoctor } from '@/mocks/generators/slotGenerator';
 
 
+
 export async function getDoctors(
     params: DoctorListParams,
 ) {
@@ -95,12 +96,29 @@ export async function getDoctorSlots(
             },
         },
         () => {
-            const selectedDate = new Date(`${date}T00:00:00`);
+            const [year, month, day] = date.split('-').map(Number);
+            const selectedDate = new Date(year, month - 1, day, 0, 0, 0, 0);
 
-            return generateSlotsForDoctor(
+            const slots = generateSlotsForDoctor(
                 doctorId,
                 selectedDate,
             );
+
+
+            return slots.map(slot => {
+                const booked = mockDatabase.bookings.some(
+                    booking =>
+                        booking.slotId === slot.id &&
+                        booking.status === 'confirmed',
+                );
+
+                return booked
+                    ? {
+                        ...slot,
+                        status: 'booked' as const,
+                    }
+                    : slot;
+            });
         },
     ).then(response => response.data);
 }

@@ -15,6 +15,7 @@ import { LoadingState } from '@/components/feedback/LoadingState';
 import {
     addDays,
     formatDateLabel,
+    formatDateParam,
     startOfDay,
 } from '@/core/utils/date';
 
@@ -27,8 +28,6 @@ import type { RootStackParamList } from '@/app/navigation/RootNavigator';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { isSlotBookable } from '../utils/slotUtils';
-
-
 
 type DetailsRouteProp = RouteProp<
     RootStackParamList,
@@ -57,9 +56,8 @@ export function DoctorDetailsScreen() {
         dates[0],
     );
 
-    const dateParam = selectedDate
-        .toISOString()
-        .slice(0, 10);
+    const dateParam = formatDateParam(selectedDate);
+
 
     const {
         data: slots,

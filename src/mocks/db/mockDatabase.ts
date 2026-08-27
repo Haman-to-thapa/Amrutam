@@ -1,4 +1,7 @@
-import type { Doctor } from '@/features/consultations/types/consultation.types';
+import type {
+    Booking,
+    Doctor,
+} from '@/features/consultations/types/consultation.types';
 import type { Product } from '@/features/shop/types/shop.types';
 import type { HealthRecord } from '@/features/health-records/types/health-record.types';
 
@@ -14,6 +17,7 @@ export type MockDatabase = {
     doctors: Doctor[];
     products: Product[];
     healthRecords: HealthRecord[];
+    bookings: Booking[];
 };
 
 export const mockDatabase: MockDatabase = {
@@ -31,4 +35,6 @@ export const mockDatabase: MockDatabase = {
         MOCK_DATA_CONFIG.healthRecords,
         MOCK_DATA_CONFIG.seed + 3,
     ),
+
+    bookings: [],
 };

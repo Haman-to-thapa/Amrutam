@@ -10,7 +10,7 @@ import { DoctorListScreen } from '@/features/consultations/screens/DoctorListScr
 import { DoctorDetailsScreen } from '@/features/consultations/screens/DoctorDetailsScreen';
 import type { Doctor, DoctorSlot } from '@/features/consultations/types/consultation.types';
 import { BookingConfirmationScreen } from '@/features/consultations/screens/BookingConfirmationScreen';
-
+import { UpcomingConsultationScreen } from '@/features/consultations/screens/UpcomingConsultationScreen';
 
 export type RootStackParamList = {
     Doctors: undefined;
@@ -21,6 +21,7 @@ export type RootStackParamList = {
         doctor: Doctor;
         slot: DoctorSlot;
     };
+    UpcomingConsultations: undefined;
 };
 const Stack =
     createNativeStackNavigator<RootStackParamList>();
@@ -50,6 +51,14 @@ export function RootNavigator() {
                         title: 'Confirm Booking',
                     }}
                 />
+                <Stack.Screen
+                    name="UpcomingConsultations"
+                    component={UpcomingConsultationScreen}
+                    options={{
+                        title: 'Upcoming Consultations',
+                    }}
+                />
+
 
             </Stack.Navigator>
         </NavigationContainer>

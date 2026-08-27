@@ -11,11 +11,11 @@ export const mockConfig = {
     enabled: __DEV__,
 
     latencyMs: {
-        min: 200,
-        max: 600,
+        min: 50,
+        max: 150,
     },
 
-    failureRate: 0.15,
+    failureRate: 0,
 
     failureMode: 'none' as MockFailureMode,
-} as const;
+} as const;

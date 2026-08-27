@@ -1,10 +1,12 @@
 import { baseApi } from '@/core/api/baseApi';
 import type { PaginatedResponse } from '@/core/api/api.types';
-import { getDoctorSlots, getDoctors } from '@/mocks/repositories';
+import { getDoctorSlots, getDoctors, createBooking } from '@/mocks/repositories';
 import type {
     Doctor,
     DoctorListParams,
     DoctorSlot,
+    CreateBookingRequest,
+    Booking,
 } from '../types/consultation.types';
 
 export const consultationApi = baseApi.injectEndpoints({
@@ -81,7 +83,6 @@ export const consultationApi = baseApi.injectEndpoints({
                     };
                 }
             },
-
             providesTags: (_result, _error, arg) => [
                 {
                     type: 'Slot' as const,
@@ -89,10 +90,101 @@ export const consultationApi = baseApi.injectEndpoints({
                 },
             ],
         }),
+
+        createBooking: builder.mutation<
+            Booking,
+            CreateBookingRequest
+        >({
+            async queryFn(request) {
+                try {
+                    const booking = await createBooking(request);
+
+                    return {
+                        data: booking,
+                    };
+                } catch (error) {
+                    const message =
+                        error instanceof Error
+                            ? error.message
+                            : 'Unable to create booking.';
+
+                    if (message === 'SLOT_EXPIRED') {
+                        return {
+                            error: {
+                                code: 'VALIDATION_ERROR',
+                                message:
+                                    'This consultation slot has expired.',
+                            },
+                        };
+                    }
+
+                    if (
+                        message === 'BOOKING_CONFLICT' ||
+                        message === 'SLOT_UNAVAILABLE'
+                    ) {
+                        return {
+                            error: {
+                                code: 'CONFLICT',
+                                message:
+                                    'This consultation slot is no longer available.',
+                            },
+                        };
+                    }
+
+                    if (message === 'DUPLICATE_BOOKING') {
+                        return {
+                            error: {
+                                code: 'CONFLICT',
+                                message:
+                                    'You have already booked this consultation slot.',
+                            },
+                        };
+                    }
+
+                    if (message === 'DOCTOR_NOT_FOUND') {
+                        return {
+                            error: {
+                                code: 'NOT_FOUND',
+                                message: 'Doctor could not be found.',
+                            },
+                        };
+                    }
+
+                    if (message === 'SLOT_NOT_FOUND') {
+                        return {
+                            error: {
+                                code: 'NOT_FOUND',
+                                message: 'Consultation slot could not be found.',
+                            },
+                        };
+                    }
+
+                    return {
+                        error: {
+                            code: 'UNKNOWN',
+                            message: 'Unable to create booking.',
+                        },
+                    };
+                }
+            },
+
+            invalidatesTags: (_result, _error, request) => [
+                {
+                    type: 'Slot' as const,
+                    id: `${request.doctorId}-${request.date}`,
+                },
+                {
+                    type: 'Booking' as const,
+                    id: 'LIST',
+                },
+            ],
+
+        }),
     }),
 });
 
 export const {
     useGetDoctorsQuery,
     useGetDoctorSlotsQuery,
-} = consultationApi;
+    useCreateBookingMutation,
+} = consultationApi;

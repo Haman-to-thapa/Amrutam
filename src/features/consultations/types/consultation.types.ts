@@ -88,7 +88,9 @@ export type CreateBookingRequest = {
     slotId: ID;
     patientName: string;
     mode: ConsultationMode;
+    date: string;
 };
+
 
 export type CancelBookingRequest = {
     bookingId: ID;
