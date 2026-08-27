@@ -1,40 +1,25 @@
 import React from 'react';
-import { Pressable, SafeAreaView, Text } from 'react-native';
+import { SafeAreaView, Text } from 'react-native';
 
 import { AppProviders } from '@/app/providers/AppProviders';
-import { useAppDispatch } from '@/store/hooks';
-import { showToast } from '@/store/slices/toastSlice';
-
-function AppContent() {
-  const dispatch = useAppDispatch();
-
-  const handleTest = () => {
-    dispatch(
-      showToast({
-        type: 'success',
-        message: 'Amrutam toast working',
-      }),
-    );
-  };
-
-  return (
-    <SafeAreaView>
-      <Text>Amrutam</Text>
-
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Test toast"
-        onPress={handleTest}>
-        <Text>Test Toast</Text>
-      </Pressable>
-    </SafeAreaView>
-  );
-}
+import { mockDatabase } from '@/mocks/db/mockDatabase';
 
 export default function App() {
   return (
     <AppProviders>
-      <AppContent />
+      <SafeAreaView>
+        <Text>
+          Doctors: {mockDatabase.doctors.length}
+        </Text>
+
+        <Text>
+          Products: {mockDatabase.products.length}
+        </Text>
+
+        <Text>
+          Health Records: {mockDatabase.healthRecords.length}
+        </Text>
+      </SafeAreaView>
     </AppProviders>
   );
 }
