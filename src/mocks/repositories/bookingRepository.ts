@@ -3,6 +3,7 @@ import { mockTransport } from '@/mocks/transport/mockTransport';
 
 import type {
     Booking,
+    CancelBookingRequest,
     CreateBookingRequest,
     DoctorSlot,
 } from '@/features/consultations/types/consultation.types';
@@ -135,4 +136,57 @@ export function getUpcomingBookings(): Booking[] {
             booking.status === 'confirmed' &&
             new Date(booking.scheduledAt).getTime() > now,
     );
+}
+
+export async function cancelBooking(
+    request: CancelBookingRequest,
+): Promise<Booking> {
+    return mockTransport(
+        {
+            method: 'POST',
+            path: `/bookings/${request.bookingId}/cancel`,
+            body: request,
+        },
+        () => {
+            const bookingIndex =
+                mockDatabase.bookings.findIndex(
+                    booking => booking.id === request.bookingId,
+                );
+
+            if (bookingIndex === -1) {
+                throw new Error('BOOKING_NOT_FOUND');
+            }
+
+            const booking =
+                mockDatabase.bookings[bookingIndex];
+
+            if (booking.status === 'cancelled') {
+                throw new Error('BOOKING_ALREADY_CANCELLED');
+            }
+
+            if (booking.status !== 'confirmed') {
+                throw new Error('BOOKING_NOT_CANCELLABLE');
+            }
+
+            const now = new Date();
+
+            if (
+                new Date(booking.scheduledAt).getTime() <=
+                now.getTime()
+            ) {
+                throw new Error('BOOKING_EXPIRED');
+            }
+
+            const updatedBooking: Booking = {
+                ...booking,
+                status: 'cancelled',
+                updatedAt: now.toISOString(),
+            };
+
+            mockDatabase.bookings[bookingIndex] =
+                updatedBooking;
+
+            return updatedBooking;
+        },
+    ).then(response => response.data);
 }

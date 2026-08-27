@@ -10,12 +10,17 @@ import { FlashList } from '@shopify/flash-list';
 import { EmptyState } from '@/components/feedback/EmptyState';
 import { ErrorState } from '@/components/feedback/ErrorState';
 import { LoadingState } from '@/components/feedback/LoadingState';
-import { formatTime } from '@/core/utils/date';
 
 import { useGetUpcomingBookingsQuery } from '../api/bookingApi';
+import { useCancelBookingMutation } from '../api/cancelBookingApi';
+import { UpcomingBookingCard } from '../components/UpcomingBookingCard';
+import { useAppDispatch } from '@/store/hooks';
+import { showToast } from '@/store/slices/toastSlice';
 import type { Booking } from '../types/consultation.types';
 
 export function UpcomingConsultationScreen() {
+    const dispatch = useAppDispatch();
+
     const {
         data: bookings = [],
         isLoading,
@@ -25,42 +30,56 @@ export function UpcomingConsultationScreen() {
         refetch,
     } = useGetUpcomingBookingsQuery();
 
+    const [
+        cancelBooking,
+        {
+            isLoading: isCancelling,
+        },
+    ] = useCancelBookingMutation();
+
+    const handleCancel = useCallback(
+        async (booking: Booking) => {
+            try {
+                await cancelBooking({
+                    bookingId: booking.id,
+                }).unwrap();
+
+                dispatch(
+                    showToast({
+                        type: 'success',
+                        message:
+                            'Consultation cancelled successfully.',
+                    }),
+                );
+            } catch (err) {
+                const message =
+                    err &&
+                        typeof err === 'object' &&
+                        'message' in err &&
+                        typeof err.message === 'string'
+                        ? err.message
+                        : 'Unable to cancel consultation.';
+
+                dispatch(
+                    showToast({
+                        type: 'error',
+                        message,
+                    }),
+                );
+            }
+        },
+        [cancelBooking, dispatch],
+    );
+
     const renderItem = useCallback(
         ({ item }: { item: Booking }) => (
-            <View style={styles.card}>
-                <Text style={styles.title}>
-                    Consultation
-                </Text>
-
-                <Text style={styles.row}>
-                    Doctor ID: {item.doctorId}
-                </Text>
-
-                <Text style={styles.row}>
-                    Date:{' '}
-                    {new Date(item.scheduledAt).toLocaleDateString(
-                        'en-IN',
-                    )}
-                </Text>
-
-                <Text style={styles.row}>
-                    Time: {formatTime(item.scheduledAt)}
-                </Text>
-
-                <Text style={styles.row}>
-                    Mode: {item.mode}
-                </Text>
-
-                <Text style={styles.row}>
-                    Patient: {item.patientName}
-                </Text>
-
-                <Text style={styles.status}>
-                    {item.status}
-                </Text>
-            </View>
+            <UpcomingBookingCard
+                booking={item}
+                onCancel={handleCancel}
+                isCancelling={isCancelling}
+            />
         ),
-        [],
+        [handleCancel, isCancelling],
     );
 
     if (isLoading) {
@@ -104,13 +123,15 @@ export function UpcomingConsultationScreen() {
                 data={bookings}
                 renderItem={renderItem}
                 keyExtractor={item => item.id}
-                // estimatedItemSize={170}
                 refreshControl={
                     <RefreshControl
                         refreshing={isFetching && !isLoading}
-                    // onRefresh={refetch}
+                        onRefresh={() => {
+                            refetch();
+                        }}
                     />
                 }
+
                 contentContainerStyle={styles.content}
             />
         </View>
@@ -120,41 +141,18 @@ export function UpcomingConsultationScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: '#f8f9fa',
     },
 
     content: {
         padding: 16,
+        paddingBottom: 32,
     },
 
     refreshing: {
         paddingHorizontal: 16,
         paddingTop: 10,
         fontSize: 12,
+        color: '#6b7280',
     },
-
-    card: {
-        marginBottom: 12,
-        padding: 16,
-        borderRadius: 12,
-        backgroundColor: '#fff',
-        elevation: 2,
-    },
-
-    title: {
-        fontSize: 18,
-        fontWeight: '700',
-        marginBottom: 8,
-    },
-
-    row: {
-        marginTop: 5,
-        fontSize: 14,
-    },
-
-    status: {
-        marginTop: 10,
-        fontSize: 13,
-        fontWeight: '700',
-        textTransform: 'capitalize',
-    },
-});
+});

@@ -96,3 +96,4 @@ export type CancelBookingRequest = {
     bookingId: ID;
     reason?: string;
 };
+
