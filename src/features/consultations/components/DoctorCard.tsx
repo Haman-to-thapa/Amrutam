@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import {
     Image,
+    Pressable,
     StyleSheet,
     Text,
     View,
@@ -10,11 +11,16 @@ import type { Doctor } from '../types/consultation.types';
 
 type Props = {
     doctor: Doctor;
+    onPress?: () => void;
 };
 
-function DoctorCardComponent({ doctor }: Props) {
+function DoctorCardComponent({ doctor, onPress }: Props) {
     return (
-        <View style={styles.card}>
+        <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`View profile of ${doctor.name}`}
+            onPress={onPress}
+            style={styles.card}>
             <Image
                 source={{ uri: doctor.avatarUrl }}
                 style={styles.avatar}
@@ -37,11 +43,12 @@ function DoctorCardComponent({ doctor }: Props) {
                     From ₹{doctor.consultationFee}
                 </Text>
             </View>
-        </View>
+        </Pressable>
     );
 }
 
 export const DoctorCard = memo(DoctorCardComponent);
+
 
 const styles = StyleSheet.create({
     card: {

@@ -8,6 +8,9 @@ import { LoadingState } from '@/components/feedback/LoadingState';
 import { Input } from '@/components/ui/Input';
 import { useDebounce } from '@/core/utils/useDebounce';
 
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
 import { DoctorCard } from '../components/DoctorCard';
 import { DoctorFilters } from '../components/DoctorFilters';
 import { useDoctors } from '../hooks/useDoctors';
@@ -15,10 +18,14 @@ import type {
     Doctor,
     DoctorSpecialization,
 } from '../types/consultation.types';
+import type { RootStackParamList } from '@/app/navigation/RootNavigator';
 
 const PAGE_SIZE = 30;
 
 export function DoctorListScreen() {
+    const navigation =
+        useNavigation<NativeStackNavigationProp<RootStackParamList, 'Doctors'>>();
+
     const [search, setSearch] = useState('');
     const [specialization, setSpecialization] =
         useState<DoctorSpecialization | undefined>();
@@ -37,10 +44,18 @@ export function DoctorListScreen() {
 
     const renderItem = useCallback(
         ({ item }: { item: Doctor }) => (
-            <DoctorCard doctor={item} />
+            <DoctorCard
+                doctor={item}
+                onPress={() =>
+                    navigation.navigate('DoctorDetails', {
+                        doctor: item,
+                    })
+                }
+            />
         ),
-        [],
+        [navigation],
     );
+
 
     const doctors = data?.data ?? [];
 

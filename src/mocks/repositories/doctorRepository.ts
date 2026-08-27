@@ -5,6 +5,8 @@ import type {
 import { mockDatabase } from '@/mocks/db/mockDatabase';
 import { mockTransport } from '@/mocks/transport/mockTransport';
 import { paginate } from './pagination';
+import { generateSlotsForDoctor } from '@/mocks/generators/slotGenerator';
+
 
 export async function getDoctors(
     params: DoctorListParams,
@@ -79,6 +81,30 @@ export async function getDoctors(
         },
     );
 }
+
+export async function getDoctorSlots(
+    doctorId: string,
+    date: string,
+) {
+    return mockTransport(
+        {
+            method: 'GET',
+            path: `/doctors/${doctorId}/slots`,
+            query: {
+                date,
+            },
+        },
+        () => {
+            const selectedDate = new Date(`${date}T00:00:00`);
+
+            return generateSlotsForDoctor(
+                doctorId,
+                selectedDate,
+            );
+        },
+    ).then(response => response.data);
+}
+
 
 export async function getDoctorById(
     doctorId: string,

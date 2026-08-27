@@ -1,9 +1,10 @@
 import { baseApi } from '@/core/api/baseApi';
 import type { PaginatedResponse } from '@/core/api/api.types';
-import { getDoctors } from '@/mocks/repositories';
+import { getDoctorSlots, getDoctors } from '@/mocks/repositories';
 import type {
     Doctor,
     DoctorListParams,
+    DoctorSlot,
 } from '../types/consultation.types';
 
 export const consultationApi = baseApi.injectEndpoints({
@@ -27,11 +28,13 @@ export const consultationApi = baseApi.injectEndpoints({
                                 error instanceof Error
                                     ? error.message
                                     : 'Unable to load doctors.',
-                            details: error,
+                            details:
+                                error instanceof Error
+                                    ? error.message
+                                    : undefined,
                         },
                     };
                 }
-
             },
             providesTags: result =>
                 result
@@ -44,7 +47,52 @@ export const consultationApi = baseApi.injectEndpoints({
                     ]
                     : [{ type: 'Doctor' as const, id: 'LIST' }],
         }),
+
+        getDoctorSlots: builder.query<
+            DoctorSlot[],
+            {
+                doctorId: string;
+                date: string;
+            }
+        >({
+            async queryFn(params) {
+                try {
+                    const response = await getDoctorSlots(
+                        params.doctorId,
+                        params.date,
+                    );
+
+                    return {
+                        data: response,
+                    };
+                } catch (error) {
+                    return {
+                        error: {
+                            code: 'UNKNOWN',
+                            message:
+                                error instanceof Error
+                                    ? error.message
+                                    : 'Unable to load slots.',
+                            details:
+                                error instanceof Error
+                                    ? error.message
+                                    : undefined,
+                        },
+                    };
+                }
+            },
+
+            providesTags: (_result, _error, arg) => [
+                {
+                    type: 'Slot' as const,
+                    id: `${arg.doctorId}-${arg.date}`,
+                },
+            ],
+        }),
     }),
 });
 
-export const { useGetDoctorsQuery } = consultationApi;
+export const {
+    useGetDoctorsQuery,
+    useGetDoctorSlotsQuery,
+} = consultationApi;

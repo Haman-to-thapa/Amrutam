@@ -40,10 +40,11 @@ export const baseQuery: BaseQueryFn<
                 code: 'UNKNOWN',
                 message:
                     error instanceof Error ? error.message : 'Unexpected API error',
-                details: error,
+                details: error instanceof Error ? error.message : undefined,
             },
         };
     }
+
 };
 
 function normalizeApiError(error: FetchBaseQueryError): ApiError {
