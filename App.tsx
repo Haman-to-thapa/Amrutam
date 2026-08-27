@@ -2,14 +2,29 @@ import React from 'react';
 import { SafeAreaView, Text } from 'react-native';
 
 import { AppProviders } from '@/app/providers/AppProviders';
-import { useAppSelector } from '@/store/hooks';
+import { storageService } from '@/core/storage/storage';
+import { STORAGE_KEYS } from '@/core/storage/storageKeys';
 
 function AppContent() {
-  const initialized = useAppSelector(state => state.appTest.initialized);
+  const handleStorageTest = () => {
+    storageService.setJson(STORAGE_KEYS.THEME, {
+      mode: 'dark',
+    });
+
+    const result = storageService.getJson<{ mode: string }>(
+      STORAGE_KEYS.THEME,
+    );
+
+    console.log('Storage test:', result);
+  };
+
+  React.useEffect(() => {
+    handleStorageTest();
+  }, []);
 
   return (
     <SafeAreaView>
-      <Text>{initialized ? 'Redux Connected' : 'Redux Failed'}</Text>
+      <Text>Storage Layer Ready</Text>
     </SafeAreaView>
   );
 }
