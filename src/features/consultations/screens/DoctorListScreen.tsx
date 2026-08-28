@@ -20,9 +20,12 @@ import type {
 } from '../types/consultation.types';
 import type { RootStackParamList } from '@/app/navigation/RootNavigator';
 
+import { useAppTheme } from '@/app/providers/ThemeProvider';
+
 const PAGE_SIZE = 30;
 
 export function DoctorListScreen() {
+    const { theme } = useAppTheme();
     const navigation =
         useNavigation<NativeStackNavigationProp<RootStackParamList, 'Doctors'>>();
 
@@ -56,13 +59,12 @@ export function DoctorListScreen() {
         [navigation],
     );
 
-
     const doctors = data?.data ?? [];
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
             <View style={styles.header}>
-                <Text style={styles.title}>Ayurvedic Doctors</Text>
+                <Text style={[styles.title, { color: theme.colors.text }]}>Ayurvedic Doctors</Text>
 
                 <Input
                     value={search}
@@ -77,7 +79,7 @@ export function DoctorListScreen() {
                 />
 
                 {isFetching && !isLoading ? (
-                    <Text style={styles.refreshing}>Updating...</Text>
+                    <Text style={[styles.refreshing, { color: theme.colors.textSecondary }]}>Updating...</Text>
                 ) : null}
             </View>
 
@@ -133,10 +135,10 @@ const styles = StyleSheet.create({
     refreshing: {
         marginTop: 4,
         fontSize: 12,
-        color: '#666',
     },
 
     list: {
         paddingBottom: 24,
     },
-});
+});
+

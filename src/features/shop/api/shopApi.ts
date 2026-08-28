@@ -1,6 +1,11 @@
 import { baseApi } from '@/core/api/baseApi';
 import type { PaginatedResponse } from '@/core/api/api.types';
 import {
+    loadProductsCache,
+    saveProductsCache,
+} from '@/core/storage/apiCacheStorage';
+import { createCacheKey } from '@/core/utils/cacheKey';
+import {
     getProductById,
     getProducts,
 } from '@/mocks/repositories';
@@ -17,13 +22,32 @@ export const shopApi = baseApi.injectEndpoints({
             ProductListParams
         >({
             async queryFn(params) {
+                const paramsKey = createCacheKey(params);
+
                 try {
                     const response = await getProducts(params);
+
+                    saveProductsCache({
+                        paramsKey,
+                        data: response.data,
+                        savedAt: Date.now(),
+                    });
 
                     return {
                         data: response.data,
                     };
                 } catch (error) {
+                    const cached = loadProductsCache();
+
+                    if (
+                        cached &&
+                        cached.paramsKey === paramsKey
+                    ) {
+                        return {
+                            data: cached.data,
+                        };
+                    }
+
                     return {
                         error: {
                             code: 'UNKNOWN',
@@ -39,6 +63,7 @@ export const shopApi = baseApi.injectEndpoints({
                     };
                 }
             },
+
 
             providesTags: result =>
                 result

@@ -23,8 +23,10 @@ import { LoadingState } from '@/components/feedback/LoadingState';
 import type { ShopStackParamList } from '@/app/navigation/ShopNavigator';
 import type { CartItem, Product } from '../types/shop.types';
 import { CartItemRow } from '../components/CartItemRow';
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 export function CartScreen() {
+    const { theme } = useAppTheme();
     const dispatch = useAppDispatch();
     const insets = useSafeAreaInsets();
     const navigation =
@@ -74,7 +76,7 @@ export function CartScreen() {
 
     if (cartItems.length === 0) {
         return (
-            <View style={styles.emptyContainer}>
+            <View style={[styles.emptyContainer, { backgroundColor: theme.colors.background }]}>
                 <EmptyState
                     title="Your Cart is Empty"
                     message="You haven't added any Ayurvedic wellness products yet."
@@ -83,7 +85,7 @@ export function CartScreen() {
                     accessibilityRole="button"
                     accessibilityLabel="Explore shop"
                     onPress={() => navigation.navigate('Products')}
-                    style={styles.exploreButton}>
+                    style={[styles.exploreButton, { backgroundColor: theme.colors.primary }]}>
                     <Text style={styles.exploreButtonText}>Explore Products 🌿</Text>
                 </Pressable>
             </View>
@@ -91,10 +93,10 @@ export function CartScreen() {
     }
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
             {/* Top Bar */}
-            <View style={styles.topBar}>
-                <Text style={styles.itemCountText}>
+            <View style={[styles.topBar, { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.border }]}>
+                <Text style={[styles.itemCountText, { color: theme.colors.text }]}>
                     {totalCount} {totalCount === 1 ? 'Item' : 'Items'} in Cart
                 </Text>
                 <Pressable
@@ -102,7 +104,7 @@ export function CartScreen() {
                     accessibilityLabel="Clear cart"
                     onPress={handleClearCart}
                     style={styles.clearButton}>
-                    <Text style={styles.clearButtonText}>Clear Cart</Text>
+                    <Text style={[styles.clearButtonText, { color: theme.colors.danger }]}>Clear Cart</Text>
                 </Pressable>
             </View>
 
@@ -118,17 +120,17 @@ export function CartScreen() {
             />
 
             {/* Bottom Checkout Bar */}
-            <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 12) }]}>
+            <View style={[styles.bottomBar, { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.border, paddingBottom: Math.max(insets.bottom, 12) }]}>
                 <View style={styles.bottomColumn}>
-                    <Text style={styles.bottomLabel}>Cart Total</Text>
-                    <Text style={styles.bottomCount}>({totalCount} items)</Text>
+                    <Text style={[styles.bottomLabel, { color: theme.colors.textSecondary }]}>Cart Total</Text>
+                    <Text style={[styles.bottomCount, { color: theme.colors.text }]}>({totalCount} items)</Text>
                 </View>
 
                 <Pressable
                     accessibilityRole="button"
                     accessibilityLabel="Proceed to checkout"
                     onPress={() => navigation.navigate('Checkout')}
-                    style={styles.checkoutButton}>
+                    style={[styles.checkoutButton, { backgroundColor: theme.colors.primary }]}>
                     <Text style={styles.checkoutButtonText}>Proceed to Checkout →</Text>
                 </Pressable>
             </View>
@@ -140,12 +142,10 @@ export function CartScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f8f9fa',
     },
 
     emptyContainer: {
         flex: 1,
-        backgroundColor: '#f8f9fa',
         alignItems: 'center',
         justifyContent: 'center',
         paddingHorizontal: 20,
@@ -153,14 +153,9 @@ const styles = StyleSheet.create({
 
     exploreButton: {
         marginTop: 20,
-        backgroundColor: '#1f6f43',
         paddingHorizontal: 24,
         paddingVertical: 14,
         borderRadius: 12,
-        shadowColor: '#1f6f43',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.2,
-        shadowRadius: 6,
         elevation: 3,
     },
 
@@ -176,15 +171,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 16,
         paddingVertical: 12,
-        backgroundColor: '#ffffff',
         borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
     },
 
     itemCountText: {
         fontSize: 13,
         fontWeight: '700',
-        color: '#374151',
     },
 
     clearButton: {
@@ -195,7 +187,6 @@ const styles = StyleSheet.create({
     clearButtonText: {
         fontSize: 13,
         fontWeight: '600',
-        color: '#b91c1c',
     },
 
     listContent: {
@@ -207,9 +198,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: '#ffffff',
         borderTopWidth: 1,
-        borderTopColor: '#e5e7eb',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -228,14 +217,12 @@ const styles = StyleSheet.create({
 
     bottomLabel: {
         fontSize: 11,
-        color: '#6b7280',
         fontWeight: '600',
     },
 
     bottomCount: {
         fontSize: 14,
         fontWeight: '700',
-        color: '#111827',
     },
 
     checkoutButton: {
@@ -245,11 +232,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 12,
-        backgroundColor: '#1f6f43',
-        shadowColor: '#1f6f43',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.25,
-        shadowRadius: 6,
         elevation: 4,
     },
 
@@ -259,3 +241,4 @@ const styles = StyleSheet.create({
         fontWeight: '700',
     },
 });
+

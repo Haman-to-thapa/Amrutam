@@ -8,6 +8,7 @@ import {
     View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 const PRICE_PRESETS: readonly {
     label: string;
@@ -48,6 +49,7 @@ function ProductAdvancedFiltersComponent({
     minRating,
     onApply,
 }: Props) {
+    const { theme } = useAppTheme();
     const insets = useSafeAreaInsets();
     const bottomInset = Math.max(insets.bottom, 16);
 
@@ -91,18 +93,23 @@ function ProductAdvancedFiltersComponent({
                 onPress={openModal}
                 style={[
                     styles.triggerButton,
-                    activeFilterCount > 0 && styles.activeTriggerButton,
+                    {
+                        backgroundColor: activeFilterCount > 0 ? (theme.mode === 'dark' ? '#1f3d2b' : '#e8f5e9') : theme.colors.surface,
+                        borderColor: activeFilterCount > 0 ? theme.colors.primary : theme.colors.border,
+                    },
                 ]}>
                 <Text style={styles.triggerIcon}>🎛️</Text>
                 <Text
                     style={[
                         styles.triggerText,
-                        activeFilterCount > 0 && styles.activeTriggerText,
+                        {
+                            color: activeFilterCount > 0 ? theme.colors.primary : theme.colors.text,
+                        },
                     ]}>
                     Filters
                 </Text>
                 {activeFilterCount > 0 ? (
-                    <View style={styles.badge}>
+                    <View style={[styles.badge, { backgroundColor: theme.colors.primary }]}>
                         <Text style={styles.badgeText}>{activeFilterCount}</Text>
                     </View>
                 ) : null}
@@ -119,22 +126,22 @@ function ProductAdvancedFiltersComponent({
                         onPress={() => setVisible(false)}
                     />
 
-                    <View style={styles.sheet}>
+                    <View style={[styles.sheet, { backgroundColor: theme.colors.surface }]}>
                         {/* Header */}
-                        <View style={styles.header}>
-                            <Text style={styles.title}>Filter Products</Text>
+                        <View style={[styles.header, { borderBottomColor: theme.colors.border }]}>
+                            <Text style={[styles.title, { color: theme.colors.text }]}>Filter Products</Text>
                             <View style={styles.headerActions}>
                                 <Pressable
                                     accessibilityRole="button"
                                     onPress={handleReset}
                                     style={styles.resetButton}>
-                                    <Text style={styles.resetText}>Reset All</Text>
+                                    <Text style={[styles.resetText, { color: theme.colors.danger }]}>Reset All</Text>
                                 </Pressable>
                                 <Pressable
                                     accessibilityRole="button"
                                     onPress={() => setVisible(false)}
-                                    style={styles.closeButton}>
-                                    <Text style={styles.closeIcon}>✕</Text>
+                                    style={[styles.closeButton, { backgroundColor: theme.mode === 'dark' ? '#2a2a2a' : '#f3f4f6' }]}>
+                                    <Text style={[styles.closeIcon, { color: theme.colors.textSecondary }]}>✕</Text>
                                 </Pressable>
                             </View>
                         </View>
@@ -143,7 +150,7 @@ function ProductAdvancedFiltersComponent({
                             showsVerticalScrollIndicator={false}
                             contentContainerStyle={styles.body}>
                             {/* Price Range Section */}
-                            <Text style={styles.sectionTitle}>💰 Price Range</Text>
+                            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>💰 Price Range</Text>
                             <View style={styles.pillGrid}>
                                 {PRICE_PRESETS.map(preset => {
                                     const isSelected =
@@ -160,16 +167,24 @@ function ProductAdvancedFiltersComponent({
                                             }}
                                             style={[
                                                 styles.pill,
-                                                isSelected
-                                                    ? styles.activePill
-                                                    : styles.inactivePill,
+                                                {
+                                                    backgroundColor: isSelected
+                                                        ? theme.colors.primary
+                                                        : (theme.mode === 'dark' ? '#2a2a2a' : '#f9fafb'),
+                                                    borderColor: isSelected
+                                                        ? theme.colors.primary
+                                                        : theme.colors.border,
+                                                },
                                             ]}>
                                             <Text
                                                 style={[
                                                     styles.pillText,
-                                                    isSelected
-                                                        ? styles.activePillText
-                                                        : styles.inactivePillText,
+                                                    {
+                                                        color: isSelected
+                                                            ? '#FFFFFF'
+                                                            : theme.colors.text,
+                                                        fontWeight: isSelected ? '700' : '500',
+                                                    },
                                                 ]}>
                                                 {preset.label}
                                             </Text>
@@ -179,7 +194,7 @@ function ProductAdvancedFiltersComponent({
                             </View>
 
                             {/* Rating Section */}
-                            <Text style={styles.sectionTitle}>⭐ Customer Rating</Text>
+                            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>⭐ Customer Rating</Text>
                             <View style={styles.pillGrid}>
                                 {RATING_PRESETS.map(preset => {
                                     const isSelected = draftMinRating === preset.rating;
@@ -191,16 +206,24 @@ function ProductAdvancedFiltersComponent({
                                             onPress={() => setDraftMinRating(preset.rating)}
                                             style={[
                                                 styles.pill,
-                                                isSelected
-                                                    ? styles.activePill
-                                                    : styles.inactivePill,
+                                                {
+                                                    backgroundColor: isSelected
+                                                        ? theme.colors.primary
+                                                        : (theme.mode === 'dark' ? '#2a2a2a' : '#f9fafb'),
+                                                    borderColor: isSelected
+                                                        ? theme.colors.primary
+                                                        : theme.colors.border,
+                                                },
                                             ]}>
                                             <Text
                                                 style={[
                                                     styles.pillText,
-                                                    isSelected
-                                                        ? styles.activePillText
-                                                        : styles.inactivePillText,
+                                                    {
+                                                        color: isSelected
+                                                            ? '#FFFFFF'
+                                                            : theme.colors.text,
+                                                        fontWeight: isSelected ? '700' : '500',
+                                                    },
                                                 ]}>
                                                 {preset.label}
                                             </Text>
@@ -214,7 +237,7 @@ function ProductAdvancedFiltersComponent({
                         <View style={[styles.footer, { paddingBottom: bottomInset + 12 }]}>
                             <Pressable
                                 onPress={apply}
-                                style={styles.applyButton}
+                                style={[styles.applyButton, { backgroundColor: theme.colors.primary }]}
                                 accessibilityRole="button">
                                 <Text style={styles.applyText}>Apply Filters</Text>
                             </Pressable>
@@ -238,16 +261,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 14,
         paddingVertical: 10,
         borderRadius: 12,
-        backgroundColor: '#ffffff',
         borderWidth: 1,
-        borderColor: '#e5e7eb',
         height: 48,
         minWidth: 48,
-    },
-
-    activeTriggerButton: {
-        backgroundColor: '#e8f5e9',
-        borderColor: '#1f6f43',
     },
 
     triggerIcon: {
@@ -258,16 +274,10 @@ const styles = StyleSheet.create({
         marginLeft: 6,
         fontSize: 13,
         fontWeight: '600',
-        color: '#374151',
-    },
-
-    activeTriggerText: {
-        color: '#1f6f43',
     },
 
     badge: {
         marginLeft: 6,
-        backgroundColor: '#1f6f43',
         width: 18,
         height: 18,
         borderRadius: 9,
@@ -292,12 +302,10 @@ const styles = StyleSheet.create({
     },
 
     sheet: {
-        backgroundColor: '#ffffff',
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
         maxHeight: '82%',
     },
-
 
     header: {
         flexDirection: 'row',
@@ -307,13 +315,11 @@ const styles = StyleSheet.create({
         paddingTop: 20,
         paddingBottom: 14,
         borderBottomWidth: 1,
-        borderBottomColor: '#f3f4f6',
     },
 
     title: {
         fontSize: 18,
         fontWeight: '700',
-        color: '#111827',
     },
 
     headerActions: {
@@ -328,7 +334,6 @@ const styles = StyleSheet.create({
     },
 
     resetText: {
-        color: '#b91c1c',
         fontSize: 13,
         fontWeight: '600',
     },
@@ -337,14 +342,12 @@ const styles = StyleSheet.create({
         width: 32,
         height: 32,
         borderRadius: 16,
-        backgroundColor: '#f3f4f6',
         alignItems: 'center',
         justifyContent: 'center',
     },
 
     closeIcon: {
         fontSize: 14,
-        color: '#4b5563',
         fontWeight: '700',
     },
 
@@ -357,7 +360,6 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 14,
         fontWeight: '700',
-        color: '#1f2937',
         marginTop: 10,
         marginBottom: 12,
     },
@@ -373,32 +375,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 14,
         paddingVertical: 9,
         borderRadius: 12,
-    },
-
-    inactivePill: {
-        backgroundColor: '#f9fafb',
         borderWidth: 1,
-        borderColor: '#e5e7eb',
-    },
-
-    activePill: {
-        backgroundColor: '#1f6f43',
-        borderWidth: 1,
-        borderColor: '#1f6f43',
     },
 
     pillText: {
         fontSize: 13,
-        fontWeight: '500',
-    },
-
-    inactivePillText: {
-        color: '#4b5563',
-    },
-
-    activePillText: {
-        color: '#ffffff',
-        fontWeight: '600',
     },
 
     footer: {
@@ -411,11 +392,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 14,
-        backgroundColor: '#1f6f43',
-        shadowColor: '#1f6f43',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.25,
-        shadowRadius: 8,
         elevation: 4,
     },
 
@@ -424,4 +400,5 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '700',
     },
-});
+});
+

@@ -1,5 +1,6 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+    ActivityIndicator,
     Pressable,
     RefreshControl,
     SectionList,
@@ -7,6 +8,8 @@ import {
     Text,
     View,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { Input } from '@/components/ui/Input';
 import { useDebounce } from '@/core/utils/useDebounce';
@@ -14,6 +17,7 @@ import { EmptyState } from '@/components/feedback/EmptyState';
 import { ErrorState } from '@/components/feedback/ErrorState';
 import { LoadingState } from '@/components/feedback/LoadingState';
 
+import type { HealthRecordsStackParamList } from '@/app/navigation/HealthRecordsNavigator';
 import { useHealthRecords } from '../hooks/useHealthRecords';
 import {
     groupRecordsByMonthYear,
@@ -26,16 +30,17 @@ import type {
     HealthRecord,
     HealthRecordType,
 } from '../types/health-record.types';
-
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { HealthRecordsStackParamList } from '@/app/navigation/HealthRecordsNavigator';
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 const PAGE_SIZE = 50;
 
 export function HealthRecordsScreen() {
+    const { theme } = useAppTheme();
     const navigation =
         useNavigation<NativeStackNavigationProp<HealthRecordsStackParamList, 'HealthRecords'>>();
+
+    const [page, setPage] = useState(1);
+    const [loadedRecords, setLoadedRecords] = useState<HealthRecord[]>([]);
 
     const [search, setSearch] = useState('');
     const [recordType, setRecordType] =
@@ -45,9 +50,15 @@ export function HealthRecordsScreen() {
 
     const debouncedSearch = useDebounce(search, 350);
 
+    // Reset pagination when search or filters change
+    useEffect(() => {
+        setPage(1);
+        setLoadedRecords([]);
+    }, [debouncedSearch, recordType, selectedTag]);
+
     const params = useMemo(
         () => ({
-            page: 1,
+            page,
             pageSize: PAGE_SIZE,
             search: debouncedSearch.trim() || undefined,
             filters: {
@@ -55,7 +66,7 @@ export function HealthRecordsScreen() {
                 tags: selectedTag ? [selectedTag] : undefined,
             },
         }),
-        [debouncedSearch, recordType, selectedTag],
+        [debouncedSearch, page, recordType, selectedTag],
     );
 
     const {
@@ -67,17 +78,37 @@ export function HealthRecordsScreen() {
         refetch,
     } = useHealthRecords(params);
 
-    const records = data?.data;
+    // Accumulate paginated records
+    useEffect(() => {
+        if (!data) {
+            return;
+        }
+
+        setLoadedRecords(currentRecords => {
+            if (page === 1) {
+                return data.data;
+            }
+
+            const existingIds = new Set(
+                currentRecords.map(record => record.id),
+            );
+
+            const newRecords = data.data.filter(
+                record => !existingIds.has(record.id),
+            );
+
+            return [...currentRecords, ...newRecords];
+        });
+    }, [data, page]);
 
     const sections = useMemo(
-        () => (records ? groupRecordsByMonthYear(records) : []),
-        [records],
+        () => groupRecordsByMonthYear(loadedRecords),
+        [loadedRecords],
     );
 
-    const hasFilters =
-        search.trim().length > 0 ||
-        recordType !== undefined ||
-        selectedTag !== undefined;
+    const hasFilters = Boolean(
+        search.trim() || recordType || selectedTag,
+    );
 
     const clearFilters = useCallback(() => {
         setSearch('');
@@ -94,6 +125,20 @@ export function HealthRecordsScreen() {
         [navigation],
     );
 
+    const handleEndReached = useCallback(() => {
+        if (isFetching || !data?.hasNextPage) {
+            return;
+        }
+
+        setPage(currentPage => currentPage + 1);
+    }, [data?.hasNextPage, isFetching]);
+
+    const handleRefresh = useCallback(() => {
+        setPage(1);
+        setLoadedRecords([]);
+        refetch();
+    }, [refetch]);
+
     const renderItem = useCallback(
         ({
             item,
@@ -108,37 +153,40 @@ export function HealthRecordsScreen() {
         [handleRecordPress],
     );
 
-
     const renderSectionHeader = useCallback(
         ({
             section,
         }: {
             section: HealthRecordSection;
         }) => (
-            <View style={styles.sectionHeader}>
+            <View style={[styles.sectionHeader, { backgroundColor: theme.colors.background, borderBottomColor: theme.colors.border }]}>
                 <View style={styles.sectionTitleRow}>
                     <Text style={styles.calendarIcon}>🗓️</Text>
-                    <Text style={styles.sectionTitle}>
+                    <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
                         {section.title}
                     </Text>
                 </View>
-                <Text style={styles.sectionBadge}>
+                <Text style={[styles.sectionBadge, { color: theme.colors.textSecondary }]}>
                     {section.data.length} {section.data.length === 1 ? 'Record' : 'Records'}
                 </Text>
             </View>
         ),
-        [],
+        [theme],
     );
 
+    const isInitialLoading = isLoading && page === 1;
+
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
             {/* Top Search & Filter Container (Sticky & Outside SectionList to prevent focus loss) */}
-            <View style={styles.header}>
+            <View style={[styles.header, { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.border }]}>
                 <View style={styles.titleRow}>
                     <View>
-                        <Text style={styles.title}>Medical Timeline</Text>
-                        <Text style={styles.subtitle}>
-                            10,000+ Verified Patient Health Records
+                        <Text style={[styles.title, { color: theme.colors.text }]}>Medical Timeline</Text>
+                        <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
+                            {loadedRecords.length > 0
+                                ? `${loadedRecords.length}${data?.total ? ` of ${data.total}` : ''} Verified Records`
+                                : '10,000+ Verified Patient Health Records'}
                         </Text>
                     </View>
                     {hasFilters ? (
@@ -146,8 +194,8 @@ export function HealthRecordsScreen() {
                             accessibilityRole="button"
                             accessibilityLabel="Clear health record filters"
                             onPress={clearFilters}
-                            style={styles.clearButton}>
-                            <Text style={styles.clearButtonText}>Reset ✕</Text>
+                            style={[styles.clearButton, { backgroundColor: theme.mode === 'dark' ? '#3b1818' : '#fee2e2' }]}>
+                            <Text style={[styles.clearButtonText, { color: theme.colors.danger }]}>Reset ✕</Text>
                         </Pressable>
                     ) : null}
                 </View>
@@ -176,9 +224,9 @@ export function HealthRecordsScreen() {
             </View>
 
             {/* Content Area */}
-            {isLoading ? (
+            {isInitialLoading ? (
                 <LoadingState />
-            ) : isError ? (
+            ) : isError && loadedRecords.length === 0 ? (
                 <ErrorState
                     message={
                         error &&
@@ -188,9 +236,9 @@ export function HealthRecordsScreen() {
                             ? error.message
                             : 'Unable to load health records.'
                     }
-                    onRetry={refetch}
+                    onRetry={handleRefresh}
                 />
-            ) : !records || records.length === 0 ? (
+            ) : !isFetching && loadedRecords.length === 0 ? (
                 <View style={styles.emptyContainer}>
                     <EmptyState
                         title="No Records Found"
@@ -205,7 +253,7 @@ export function HealthRecordsScreen() {
                             accessibilityRole="button"
                             accessibilityLabel="Clear filters"
                             onPress={clearFilters}
-                            style={styles.resetFiltersButton}>
+                            style={[styles.resetFiltersButton, { backgroundColor: theme.colors.primary }]}>
                             <Text style={styles.resetFiltersButtonText}>Clear All Filters</Text>
                         </Pressable>
                     ) : null}
@@ -218,16 +266,28 @@ export function HealthRecordsScreen() {
                     renderSectionHeader={renderSectionHeader}
                     stickySectionHeadersEnabled
                     showsVerticalScrollIndicator={false}
+                    onEndReached={handleEndReached}
+                    onEndReachedThreshold={0.5}
+                    initialNumToRender={12}
+                    maxToRenderPerBatch={12}
+                    windowSize={7}
+                    removeClippedSubviews
                     contentContainerStyle={styles.content}
                     refreshControl={
                         <RefreshControl
-                            refreshing={isFetching && !isLoading}
-                            onRefresh={() => {
-                                refetch();
-                            }}
-                            colors={['#1f6f43']}
-                            tintColor="#1f6f43"
+                            refreshing={isFetching && page === 1}
+                            onRefresh={handleRefresh}
+                            colors={[theme.colors.primary]}
+                            tintColor={theme.colors.primary}
                         />
+                    }
+                    ListFooterComponent={
+                        isFetching && page > 1 ? (
+                            <View style={styles.footer}>
+                                <ActivityIndicator size="small" color={theme.colors.primary} />
+                                <Text style={[styles.footerText, { color: theme.colors.textSecondary }]}>Loading more records...</Text>
+                            </View>
+                        ) : undefined
                     }
 
                 />
@@ -239,13 +299,10 @@ export function HealthRecordsScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f8f9fa',
     },
 
     header: {
-        backgroundColor: '#ffffff',
         borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
         paddingTop: 12,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
@@ -265,12 +322,10 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 20,
         fontWeight: '800',
-        color: '#111827',
     },
 
     subtitle: {
         fontSize: 12,
-        color: '#6b7280',
         marginTop: 2,
     },
 
@@ -278,13 +333,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 5,
         borderRadius: 8,
-        backgroundColor: '#fee2e2',
     },
 
     clearButtonText: {
         fontSize: 12,
         fontWeight: '700',
-        color: '#b91c1c',
     },
 
     searchContainer: {
@@ -303,9 +356,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 16,
         paddingVertical: 10,
-        backgroundColor: 'rgba(248, 249, 250, 0.95)',
         borderBottomWidth: 1,
-        borderBottomColor: '#e5e7eb',
     },
 
     sectionTitleRow: {
@@ -321,13 +372,11 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 14,
         fontWeight: '700',
-        color: '#1f2937',
     },
 
     sectionBadge: {
         fontSize: 12,
         fontWeight: '600',
-        color: '#6b7280',
     },
 
     emptyContainer: {
@@ -339,7 +388,6 @@ const styles = StyleSheet.create({
 
     resetFiltersButton: {
         marginTop: 16,
-        backgroundColor: '#1f6f43',
         paddingHorizontal: 20,
         paddingVertical: 12,
         borderRadius: 10,
@@ -349,5 +397,16 @@ const styles = StyleSheet.create({
         color: '#ffffff',
         fontSize: 14,
         fontWeight: '700',
+    },
+
+    footer: {
+        alignItems: 'center',
+        paddingVertical: 20,
+        gap: 6,
+    },
+
+    footerText: {
+        fontSize: 12,
+        fontWeight: '600',
     },
 });

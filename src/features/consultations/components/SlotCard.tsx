@@ -13,6 +13,7 @@ import {
 } from '../utils/slotUtils';
 
 import type { DoctorSlot } from '../types/consultation.types';
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 type Props = {
     slot: DoctorSlot;
@@ -20,6 +21,7 @@ type Props = {
 };
 
 function SlotCardComponent({ slot, onPress }: Props) {
+    const { theme } = useAppTheme();
     const status = getEffectiveSlotStatus(slot);
     const bookable = isSlotBookable(slot);
 
@@ -33,15 +35,39 @@ function SlotCardComponent({ slot, onPress }: Props) {
             )}, ${status}`}
             style={[
                 styles.container,
+                {
+                    backgroundColor: theme.colors.surface,
+                    borderColor: bookable
+                        ? theme.colors.primary
+                        : theme.colors.border,
+                },
                 !bookable && styles.disabled,
             ]}>
-            <Text style={styles.time}>
+            <Text
+                style={[
+                    styles.time,
+                    { color: theme.colors.text },
+                ]}>
                 {formatTime(slot.startsAt)}
             </Text>
 
-            <Text style={styles.mode}>{slot.mode}</Text>
+            <Text
+                style={[
+                    styles.mode,
+                    { color: theme.colors.textSecondary },
+                ]}>
+                {slot.mode}
+            </Text>
 
-            <Text style={styles.status}>
+            <Text
+                style={[
+                    styles.status,
+                    {
+                        color: bookable
+                            ? theme.colors.primary
+                            : theme.colors.disabled,
+                    },
+                ]}>
                 {status === 'available'
                     ? 'Available'
                     : status === 'booked'
@@ -61,10 +87,8 @@ const styles = StyleSheet.create({
         width: '47%',
         marginBottom: 12,
         padding: 14,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: '#ddd',
-        backgroundColor: '#fff',
+        borderRadius: 12,
+        borderWidth: 1.5,
     },
 
     disabled: {
@@ -85,5 +109,6 @@ const styles = StyleSheet.create({
     status: {
         marginTop: 6,
         fontSize: 12,
+        fontWeight: '600',
     },
-});
+});

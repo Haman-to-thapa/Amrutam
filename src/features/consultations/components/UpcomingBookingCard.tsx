@@ -9,7 +9,7 @@ import {
 
 import { formatTime } from '@/core/utils/date';
 import type { Booking } from '../types/consultation.types';
-
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 type Props = {
     booking: Booking;
@@ -24,6 +24,8 @@ function UpcomingBookingCardComponent({
     onCancel,
     isCancelling,
 }: Props) {
+    const { theme } = useAppTheme();
+
     const handleCancelPress = () => {
         Alert.alert(
             'Cancel consultation',
@@ -43,37 +45,51 @@ function UpcomingBookingCardComponent({
     };
 
     return (
-        <View style={styles.card}>
-            <Text style={styles.title}>
-                Upcoming Consultation
+        <View
+            style={[
+                styles.card,
+                {
+                    backgroundColor: theme.colors.surface,
+                    borderColor: theme.colors.border,
+                },
+            ]}>
+            <View style={styles.header}>
+                <Text style={[styles.title, { color: theme.colors.text }]}>
+                    Confirmed Consultation
+                </Text>
+                <View style={[styles.badge, { backgroundColor: theme.mode === 'dark' ? '#1f3d2b' : '#e6f4ea' }]}>
+                    <Text style={[styles.badgeText, { color: theme.colors.primary }]}>
+                        {booking.status.toUpperCase()}
+                    </Text>
+                </View>
+            </View>
+
+            <Text style={[styles.row, { color: theme.colors.text }]}>
+                👨‍⚕️ Doctor: <Text style={styles.bold}>{doctorName ?? booking.doctorId}</Text>
             </Text>
 
-            <Text style={styles.row}>
-                Doctor: {doctorName ?? booking.doctorId}
+            <Text style={[styles.row, { color: theme.colors.text }]}>
+                🗓️ Date:{' '}
+                <Text style={styles.bold}>
+                    {new Date(booking.scheduledAt).toLocaleDateString('en-IN', {
+                        weekday: 'short',
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                    })}
+                </Text>
             </Text>
 
-
-            <Text style={styles.row}>
-                Date:{' '}
-                {new Date(
-                    booking.scheduledAt,
-                ).toLocaleDateString('en-IN')}
+            <Text style={[styles.row, { color: theme.colors.text }]}>
+                ⏰ Time: <Text style={styles.bold}>{formatTime(booking.scheduledAt)}</Text>
             </Text>
 
-            <Text style={styles.row}>
-                Time: {formatTime(booking.scheduledAt)}
+            <Text style={[styles.row, { color: theme.colors.text }]}>
+                📹 Mode: <Text style={[styles.bold, styles.capitalize]}>{booking.mode}</Text>
             </Text>
 
-            <Text style={styles.row}>
-                Mode: {booking.mode}
-            </Text>
-
-            <Text style={styles.row}>
-                Patient: {booking.patientName}
-            </Text>
-
-            <Text style={styles.status}>
-                {booking.status}
+            <Text style={[styles.row, { color: theme.colors.text }]}>
+                👤 Patient: <Text style={styles.bold}>{booking.patientName}</Text>
             </Text>
 
             <Pressable
@@ -83,12 +99,11 @@ function UpcomingBookingCardComponent({
                 onPress={handleCancelPress}
                 style={[
                     styles.cancelButton,
+                    { borderColor: theme.colors.danger },
                     isCancelling && styles.disabled,
                 ]}>
-                <Text style={styles.cancelText}>
-                    {isCancelling
-                        ? 'Cancelling...'
-                        : 'Cancel Consultation'}
+                <Text style={[styles.cancelText, { color: theme.colors.danger }]}>
+                    {isCancelling ? 'Cancelling...' : 'Cancel Consultation'}
                 </Text>
             </Pressable>
         </View>
@@ -103,14 +118,36 @@ const styles = StyleSheet.create({
     card: {
         marginBottom: 12,
         padding: 16,
-        borderRadius: 12,
-        backgroundColor: '#fff',
+        borderRadius: 14,
+        borderWidth: 1,
         elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.04,
+        shadowRadius: 3,
+    },
+
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 10,
     },
 
     title: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: '700',
+    },
+
+    badge: {
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: 6,
+    },
+
+    badgeText: {
+        fontSize: 11,
+        fontWeight: '800',
     },
 
     row: {
@@ -118,18 +155,19 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
 
-    status: {
-        marginTop: 10,
-        fontWeight: '700',
+    bold: {
+        fontWeight: '600',
+    },
+
+    capitalize: {
         textTransform: 'capitalize',
     },
 
     cancelButton: {
         marginTop: 16,
-        minHeight: 46,
-        borderWidth: 1,
-        borderColor: '#b91c1c',
-        borderRadius: 9,
+        minHeight: 44,
+        borderWidth: 1.5,
+        borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -139,7 +177,7 @@ const styles = StyleSheet.create({
     },
 
     cancelText: {
-        color: '#b91c1c',
         fontWeight: '700',
+        fontSize: 14,
     },
-});
+});

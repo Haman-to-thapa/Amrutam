@@ -10,9 +10,15 @@ export type HealthRecordSection = {
 export function groupRecordsByMonthYear(
     records: HealthRecord[],
 ): HealthRecordSection[] {
+    const sortedRecords = [...records].sort(
+        (a, b) =>
+            new Date(b.date).getTime() -
+            new Date(a.date).getTime(),
+    );
+
     const groups = new Map<string, HealthRecordSection>();
 
-    for (const record of records) {
+    for (const record of sortedRecords) {
         const date = new Date(record.date);
 
         const year = date.getFullYear();
@@ -46,3 +52,4 @@ export function groupRecordsByMonthYear(
         return b.month - a.month;
     });
 }
+

@@ -13,10 +13,16 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import type { RootStackParamList } from '@/app/navigation/RootNavigator';
 import { formatDateParam, formatTime } from '@/core/utils/date';
+import { getNetworkStatus } from '@/core/network/network';
+import { createIdempotencyKey } from '@/core/utils/idempotency';
+import { createBookingQueueItem } from '@/core/sync/bookingQueueService';
+import { enqueueBooking } from '@/store/slices/offlineQueueSlice';
 import { Input } from '@/components/ui/Input';
 import { useCreateBookingMutation } from '../api/consultationApi';
 import { useAppDispatch } from '@/store/hooks';
 import { showToast } from '@/store/slices/toastSlice';
+
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 type BookingRouteProp = RouteProp<
     RootStackParamList,
@@ -24,6 +30,7 @@ type BookingRouteProp = RouteProp<
 >;
 
 export function BookingConfirmationScreen() {
+    const { theme } = useAppTheme();
     const route = useRoute<BookingRouteProp>();
     const navigation =
         useNavigation<
@@ -43,19 +50,14 @@ export function BookingConfirmationScreen() {
     const [patientName, setPatientName] =
         useState('');
 
-    const formattedDate = useMemo(
-        () =>
-            new Date(slot.startsAt).toLocaleDateString(
-                'en-IN',
-                {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                },
-            ),
-        [slot.startsAt],
-    );
+    const formattedDate = useMemo(() => {
+        return new Date(slot.startsAt).toLocaleDateString('en-IN', {
+            weekday: 'short',
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+        });
+    }, [slot.startsAt]);
 
     const handleConfirm = async () => {
         const name = patientName.trim();
@@ -71,14 +73,39 @@ export function BookingConfirmationScreen() {
             return;
         }
 
+        const idempotencyKey = createIdempotencyKey(
+            `${doctor.id}-${slot.id}`,
+        );
+
+        const request = {
+            doctorId: doctor.id,
+            slotId: slot.id,
+            patientName: name,
+            mode: slot.mode,
+            date: formatDateParam(new Date(slot.startsAt)),
+            idempotencyKey,
+        };
+
+        const network = await getNetworkStatus();
+
+        if (!network.isConnected || network.isInternetReachable === false) {
+            const queueItem = createBookingQueueItem(request);
+
+            dispatch(enqueueBooking(queueItem));
+
+            dispatch(
+                showToast({
+                    type: 'info',
+                    message: 'You are offline. Your booking has been queued and will sync automatically.',
+                }),
+            );
+
+            navigation.replace('UpcomingConsultations');
+            return;
+        }
+
         try {
-            await createBooking({
-                doctorId: doctor.id,
-                slotId: slot.id,
-                patientName: name,
-                mode: slot.mode,
-                date: formatDateParam(new Date(slot.startsAt)),
-            }).unwrap();
+            await createBooking(request).unwrap();
 
             dispatch(
                 showToast({
@@ -112,58 +139,58 @@ export function BookingConfirmationScreen() {
 
     return (
         <KeyboardAvoidingView
-            style={styles.container}
+            style={[styles.container, { backgroundColor: theme.colors.background }]}
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
             <ScrollView
                 contentContainerStyle={styles.scrollContent}
                 keyboardShouldPersistTaps="handled"
                 automaticallyAdjustKeyboardInsets={true}
                 showsVerticalScrollIndicator={false}>
-                <Text style={styles.heading}>
+                <Text style={[styles.heading, { color: theme.colors.text }]}>
                     Confirm Consultation
                 </Text>
 
                 {/* Doctor & Appointment Summary Card */}
-                <View style={styles.card}>
+                <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
                     <View style={styles.doctorHeader}>
-                        <View style={styles.avatarMini}>
-                            <Text style={styles.avatarText}>
+                        <View style={[styles.avatarMini, { backgroundColor: theme.mode === 'dark' ? '#1f3d2b' : '#e6f4ea' }]}>
+                            <Text style={[styles.avatarText, { color: theme.colors.primary }]}>
                                 {doctor.name.replace('Dr. ', '').charAt(0)}
                             </Text>
                         </View>
                         <View style={styles.doctorInfo}>
-                            <Text style={styles.doctorName}>{doctor.name}</Text>
-                            <Text style={styles.specialization}>
+                            <Text style={[styles.doctorName, { color: theme.colors.text }]}>{doctor.name}</Text>
+                            <Text style={[styles.specialization, { color: theme.colors.primary }]}>
                                 {doctor.specialization}
                             </Text>
                         </View>
                     </View>
 
-                    <View style={styles.divider} />
+                    <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
 
                     <View style={styles.grid}>
                         <View style={styles.gridItem}>
-                            <Text style={styles.label}>Date</Text>
-                            <Text style={styles.value}>{formattedDate}</Text>
+                            <Text style={[styles.label, { color: theme.colors.textSecondary }]}>Date</Text>
+                            <Text style={[styles.value, { color: theme.colors.text }]}>{formattedDate}</Text>
                         </View>
 
                         <View style={styles.gridItem}>
-                            <Text style={styles.label}>Time</Text>
-                            <Text style={styles.value}>
+                            <Text style={[styles.label, { color: theme.colors.textSecondary }]}>Time</Text>
+                            <Text style={[styles.value, { color: theme.colors.text }]}>
                                 {formatTime(slot.startsAt)}
                             </Text>
                         </View>
 
                         <View style={styles.gridItem}>
-                            <Text style={styles.label}>Mode</Text>
-                            <Text style={[styles.value, styles.capitalize]}>
+                            <Text style={[styles.label, { color: theme.colors.textSecondary }]}>Mode</Text>
+                            <Text style={[styles.value, styles.capitalize, { color: theme.colors.text }]}>
                                 {slot.mode}
                             </Text>
                         </View>
 
                         <View style={styles.gridItem}>
-                            <Text style={styles.label}>Fee</Text>
-                            <Text style={[styles.value, styles.feeValue]}>
+                            <Text style={[styles.label, { color: theme.colors.textSecondary }]}>Fee</Text>
+                            <Text style={[styles.value, { color: theme.colors.primary, fontWeight: '700' }]}>
                                 ₹{doctor.consultationFee}
                             </Text>
                         </View>
@@ -171,9 +198,9 @@ export function BookingConfirmationScreen() {
                 </View>
 
                 {/* Patient Information Card */}
-                <View style={[styles.card, styles.patientCard]}>
-                    <Text style={styles.sectionHeading}>Patient Details</Text>
-                    <Text style={styles.label}>Full Name *</Text>
+                <View style={[styles.card, styles.patientCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+                    <Text style={[styles.sectionHeading, { color: theme.colors.text }]}>Patient Details</Text>
+                    <Text style={[styles.label, { color: theme.colors.textSecondary }]}>Full Name *</Text>
                     <Input
                         value={patientName}
                         onChangeText={setPatientName}
@@ -190,6 +217,7 @@ export function BookingConfirmationScreen() {
                     onPress={handleConfirm}
                     style={[
                         styles.button,
+                        { backgroundColor: theme.colors.primary },
                         (!canConfirm || isBooking) &&
                             styles.disabledButton,
                     ]}>
@@ -205,25 +233,23 @@ export function BookingConfirmationScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f8f9fa',
     },
 
     scrollContent: {
         padding: 16,
-        paddingBottom: 320,
+        paddingBottom: 40,
     },
 
     heading: {
         fontSize: 22,
         fontWeight: '700',
         marginBottom: 14,
-        color: '#111827',
     },
 
     card: {
         padding: 16,
         borderRadius: 14,
-        backgroundColor: '#fff',
+        borderWidth: 1,
         elevation: 2,
         shadowColor: '#000',
         shadowOpacity: 0.05,
@@ -240,7 +266,6 @@ const styles = StyleSheet.create({
         width: 44,
         height: 44,
         borderRadius: 22,
-        backgroundColor: '#e6f4ea',
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -248,7 +273,6 @@ const styles = StyleSheet.create({
     avatarText: {
         fontSize: 18,
         fontWeight: '700',
-        color: '#1f6f43',
     },
 
     doctorInfo: {
@@ -259,18 +283,16 @@ const styles = StyleSheet.create({
     doctorName: {
         fontSize: 16,
         fontWeight: '700',
-        color: '#111827',
     },
 
     specialization: {
         marginTop: 2,
         fontSize: 13,
-        color: '#6b7280',
+        fontWeight: '600',
     },
 
     divider: {
         height: 1,
-        backgroundColor: '#f1f3f5',
         marginVertical: 12,
     },
 
@@ -286,23 +308,16 @@ const styles = StyleSheet.create({
 
     label: {
         fontSize: 12,
-        color: '#6b7280',
         marginBottom: 2,
     },
 
     value: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#111827',
     },
 
     capitalize: {
         textTransform: 'capitalize',
-    },
-
-    feeValue: {
-        color: '#1f6f43',
-        fontWeight: '700',
     },
 
     patientCard: {
@@ -312,7 +327,6 @@ const styles = StyleSheet.create({
     sectionHeading: {
         fontSize: 15,
         fontWeight: '700',
-        color: '#111827',
         marginBottom: 10,
     },
 
@@ -320,7 +334,6 @@ const styles = StyleSheet.create({
         marginHorizontal: 0,
         marginTop: 6,
         marginBottom: 0,
-        backgroundColor: '#f9fafb',
     },
 
     button: {
@@ -329,7 +342,6 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#1f6f43',
         elevation: 2,
     },
 
@@ -338,10 +350,8 @@ const styles = StyleSheet.create({
     },
 
     buttonText: {
-        color: '#fff',
+        color: '#ffffff',
         fontSize: 16,
         fontWeight: '700',
     },
 });
-
-

@@ -9,6 +9,7 @@ import {
 
 import type { Product } from '../types/shop.types';
 import { WishlistButton } from './WishlistButton';
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 type Props = {
     product: Product;
@@ -16,40 +17,70 @@ type Props = {
 };
 
 function ProductCardComponent({ product, onPress }: Props) {
+    const { theme } = useAppTheme();
+
     return (
         <Pressable
             accessibilityRole="button"
             accessibilityLabel={`View ${product.name}`}
             onPress={() => onPress?.(product)}
-            style={styles.card}>
+            style={[
+                styles.card,
+                {
+                    backgroundColor: theme.colors.surface,
+                    borderColor: theme.colors.border,
+                },
+            ]}>
             <View style={styles.imageContainer}>
                 <Image
                     source={{ uri: product.thumbnailUrl }}
-                    style={styles.image}
+                    style={[
+                        styles.image,
+                        { backgroundColor: theme.colors.border },
+                    ]}
                 />
             </View>
 
             <View style={styles.content}>
                 <Text
-                    style={styles.name}
+                    style={[
+                        styles.name,
+                        { color: theme.colors.text },
+                    ]}
                     numberOfLines={2}>
                     {product.name}
                 </Text>
 
-                <Text style={styles.category}>
+                <Text
+                    style={[
+                        styles.category,
+                        { color: theme.colors.textSecondary },
+                    ]}>
                     {product.category}
                 </Text>
 
-                <Text style={styles.rating}>
+                <Text
+                    style={[
+                        styles.rating,
+                        { color: theme.colors.textSecondary },
+                    ]}>
                     ⭐ {product.rating} ({product.reviewCount})
                 </Text>
 
-                <Text style={styles.price}>
+                <Text
+                    style={[
+                        styles.price,
+                        { color: theme.colors.primary },
+                    ]}>
                     ₹{product.price}
                 </Text>
 
                 {!product.inStock ? (
-                    <Text style={styles.outOfStock}>
+                    <Text
+                        style={[
+                            styles.outOfStock,
+                            { color: theme.colors.danger },
+                        ]}>
                         Out of stock
                     </Text>
                 ) : null}
@@ -62,8 +93,6 @@ function ProductCardComponent({ product, onPress }: Props) {
     );
 }
 
-
-
 export const ProductCard = memo(
     ProductCardComponent,
 );
@@ -74,16 +103,19 @@ const styles = StyleSheet.create({
         marginHorizontal: 16,
         marginVertical: 6,
         padding: 12,
-        borderRadius: 12,
-        backgroundColor: '#fff',
+        borderRadius: 14,
+        borderWidth: 1,
         elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.04,
+        shadowRadius: 3,
     },
 
     image: {
         width: 88,
         height: 88,
         borderRadius: 10,
-        backgroundColor: '#eee',
     },
 
     content: {
@@ -98,19 +130,19 @@ const styles = StyleSheet.create({
     },
 
     category: {
-        marginTop: 4,
+        marginTop: 3,
         fontSize: 12,
     },
 
     rating: {
-        marginTop: 4,
+        marginTop: 3,
         fontSize: 12,
     },
 
     price: {
-        marginTop: 5,
+        marginTop: 4,
         fontSize: 16,
-        fontWeight: '700',
+        fontWeight: '800',
     },
 
     outOfStock: {
@@ -127,4 +159,4 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingLeft: 8,
     },
-});
+});

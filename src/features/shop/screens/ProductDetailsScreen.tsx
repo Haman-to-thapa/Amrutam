@@ -21,6 +21,7 @@ import { LoadingState } from '@/components/feedback/LoadingState';
 import type { ShopStackParamList } from '@/app/navigation/ShopNavigator';
 import { useProductDetails } from '../hooks/useProductDetails';
 import { WishlistButton } from '../components/WishlistButton';
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 type ProductDetailsRouteProp = RouteProp<
     ShopStackParamList,
@@ -28,6 +29,7 @@ type ProductDetailsRouteProp = RouteProp<
 >;
 
 export function ProductDetailsScreen() {
+    const { theme } = useAppTheme();
     const dispatch = useAppDispatch();
     const insets = useSafeAreaInsets();
     const route = useRoute<ProductDetailsRouteProp>();
@@ -104,12 +106,12 @@ export function ProductDetailsScreen() {
             : 0;
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
             <ScrollView
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 90 }]}>
+                contentContainerStyle={[styles.content, { backgroundColor: theme.colors.background, paddingBottom: insets.bottom + 90 }]}>
                 {/* Product Hero Image */}
-                <View style={styles.imageContainer}>
+                <View style={[styles.imageContainer, { backgroundColor: theme.colors.surface }]}>
                     <Image
                         source={{ uri: product.imageUrl }}
                         style={styles.image}
@@ -126,38 +128,38 @@ export function ProductDetailsScreen() {
                 {/* Details Section */}
                 <View style={styles.details}>
                     {/* Category Pill */}
-                    <View style={styles.categoryPill}>
-                        <Text style={styles.categoryText}>{product.category}</Text>
+                    <View style={[styles.categoryPill, { backgroundColor: theme.mode === 'dark' ? '#1f3d2b' : '#e8f5e9', borderColor: theme.mode === 'dark' ? '#2d573d' : '#c8e6c9' }]}>
+                        <Text style={[styles.categoryText, { color: theme.colors.primary }]}>{product.category}</Text>
                     </View>
 
                     {/* Product Name & Wishlist Button */}
                     <View style={styles.titleRow}>
-                        <Text style={styles.name}>{product.name}</Text>
+                        <Text style={[styles.name, { color: theme.colors.text }]}>{product.name}</Text>
                         <WishlistButton product={product} />
                     </View>
 
 
                     {/* Rating & Reviews */}
                     <View style={styles.ratingRow}>
-                        <View style={styles.ratingBadge}>
-                            <Text style={styles.ratingText}>⭐ {product.rating}</Text>
+                        <View style={[styles.ratingBadge, { backgroundColor: theme.mode === 'dark' ? '#3b2f15' : '#fef3c7', borderColor: theme.mode === 'dark' ? '#5c4820' : '#fde68a' }]}>
+                            <Text style={[styles.ratingText, { color: theme.mode === 'dark' ? '#fbbf24' : '#92400e' }]}>⭐ {product.rating}</Text>
                         </View>
-                        <Text style={styles.reviewsText}>
+                        <Text style={[styles.reviewsText, { color: theme.colors.textSecondary }]}>
                             ({product.reviewCount.toLocaleString('en-IN')} customer reviews)
                         </Text>
                     </View>
 
                     {/* Price & Discount */}
                     <View style={styles.priceRow}>
-                        <Text style={styles.price}>₹{product.price}</Text>
+                        <Text style={[styles.price, { color: theme.colors.primary }]}>₹{product.price}</Text>
                         {product.originalPrice ? (
-                            <Text style={styles.originalPrice}>
+                            <Text style={[styles.originalPrice, { color: theme.colors.textSecondary }]}>
                                 ₹{product.originalPrice}
                             </Text>
                         ) : null}
                         {discountPercentage > 0 ? (
-                            <View style={styles.discountBadge}>
-                                <Text style={styles.discountText}>{discountPercentage}% OFF</Text>
+                            <View style={[styles.discountBadge, { backgroundColor: theme.mode === 'dark' ? '#3b1818' : '#fee2e2' }]}>
+                                <Text style={[styles.discountText, { color: theme.colors.danger }]}>{discountPercentage}% OFF</Text>
                             </View>
                         ) : null}
                     </View>
@@ -183,20 +185,28 @@ export function ProductDetailsScreen() {
 
 
                     {/* Divider */}
-                    <View style={styles.divider} />
+                    <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
 
                     {/* Description */}
-                    <Text style={styles.sectionTitle}>About this formulation</Text>
-                    <Text style={styles.description}>{product.description}</Text>
+                    <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>About this formulation</Text>
+                    <Text style={[styles.description, { color: theme.colors.textSecondary }]}>{product.description}</Text>
 
                     {/* Tags */}
                     {product.tags && product.tags.length > 0 ? (
                         <>
-                            <Text style={styles.sectionTitle}>Key Benefits & Tags</Text>
+                            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Key Benefits & Tags</Text>
                             <View style={styles.tagsContainer}>
                                 {product.tags.map(tag => (
-                                    <View key={tag} style={styles.tagPill}>
-                                        <Text style={styles.tagText}>🌿 {tag}</Text>
+                                    <View
+                                        key={tag}
+                                        style={[
+                                            styles.tagPill,
+                                            {
+                                                backgroundColor: theme.colors.surface,
+                                                borderColor: theme.colors.border,
+                                            },
+                                        ]}>
+                                        <Text style={[styles.tagText, { color: theme.colors.text }]}>🌿 {tag}</Text>
                                     </View>
                                 ))}
                             </View>
@@ -206,10 +216,10 @@ export function ProductDetailsScreen() {
             </ScrollView>
 
             {/* Bottom Sticky Action Bar */}
-            <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 12) }]}>
+            <View style={[styles.bottomBar, { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.border, paddingBottom: Math.max(insets.bottom, 12) }]}>
                 <View style={styles.bottomPriceColumn}>
-                    <Text style={styles.bottomPriceLabel}>Total Price</Text>
-                    <Text style={styles.bottomPriceValue}>₹{product.price}</Text>
+                    <Text style={[styles.bottomPriceLabel, { color: theme.colors.textSecondary }]}>Total Price</Text>
+                    <Text style={[styles.bottomPriceValue, { color: theme.colors.text }]}>₹{product.price}</Text>
                 </View>
                 <Pressable
                     accessibilityRole="button"
@@ -220,6 +230,7 @@ export function ProductDetailsScreen() {
                     onPress={handleAddToCart}
                     style={[
                         styles.cartButton,
+                        { backgroundColor: theme.colors.primary },
                         !product.inStock && styles.disabledCartButton,
                     ]}>
                     <Text style={styles.cartButtonText}>
@@ -235,17 +246,14 @@ export function ProductDetailsScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#ffffff',
     },
 
     content: {
-        backgroundColor: '#ffffff',
     },
 
     imageContainer: {
         width: '100%',
         height: 320,
-        backgroundColor: '#f3f4f6',
         position: 'relative',
     },
 
@@ -277,9 +285,7 @@ const styles = StyleSheet.create({
 
     categoryPill: {
         alignSelf: 'flex-start',
-        backgroundColor: '#e8f5e9',
         borderWidth: 1,
-        borderColor: '#c8e6c9',
         paddingHorizontal: 10,
         paddingVertical: 4,
         borderRadius: 12,
@@ -289,7 +295,6 @@ const styles = StyleSheet.create({
     categoryText: {
         fontSize: 12,
         fontWeight: '700',
-        color: '#1b5e20',
     },
 
     titleRow: {
@@ -303,10 +308,8 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 22,
         fontWeight: '800',
-        color: '#111827',
         lineHeight: 28,
     },
-
 
     ratingRow: {
         flexDirection: 'row',
@@ -316,9 +319,7 @@ const styles = StyleSheet.create({
     },
 
     ratingBadge: {
-        backgroundColor: '#fef3c7',
         borderWidth: 1,
-        borderColor: '#fde68a',
         paddingHorizontal: 8,
         paddingVertical: 3,
         borderRadius: 8,
@@ -327,12 +328,10 @@ const styles = StyleSheet.create({
     ratingText: {
         fontSize: 13,
         fontWeight: '700',
-        color: '#92400e',
     },
 
     reviewsText: {
         fontSize: 13,
-        color: '#6b7280',
         fontWeight: '500',
     },
 
@@ -345,19 +344,16 @@ const styles = StyleSheet.create({
     price: {
         fontSize: 26,
         fontWeight: '800',
-        color: '#111827',
     },
 
     originalPrice: {
         marginLeft: 10,
         fontSize: 16,
-        color: '#9ca3af',
         textDecorationLine: 'line-through',
     },
 
     discountBadge: {
         marginLeft: 10,
-        backgroundColor: '#fee2e2',
         paddingHorizontal: 8,
         paddingVertical: 3,
         borderRadius: 6,
@@ -366,7 +362,6 @@ const styles = StyleSheet.create({
     discountText: {
         fontSize: 12,
         fontWeight: '700',
-        color: '#dc2626',
     },
 
     stockRow: {
@@ -403,24 +398,20 @@ const styles = StyleSheet.create({
         color: '#b91c1c',
     },
 
-
     divider: {
         height: 1,
-        backgroundColor: '#f3f4f6',
         marginVertical: 18,
     },
 
     sectionTitle: {
         fontSize: 16,
         fontWeight: '700',
-        color: '#1f2937',
         marginBottom: 8,
     },
 
     description: {
         fontSize: 14,
         lineHeight: 22,
-        color: '#4b5563',
         marginBottom: 16,
     },
 
@@ -435,14 +426,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         paddingVertical: 7,
         borderRadius: 14,
-        backgroundColor: '#f3f4f6',
         borderWidth: 1,
-        borderColor: '#e5e7eb',
     },
 
     tagText: {
         fontSize: 12,
-        color: '#374151',
         fontWeight: '600',
     },
 
@@ -451,9 +439,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: '#ffffff',
         borderTopWidth: 1,
-        borderTopColor: '#e5e7eb',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -472,14 +458,12 @@ const styles = StyleSheet.create({
 
     bottomPriceLabel: {
         fontSize: 11,
-        color: '#6b7280',
         fontWeight: '600',
     },
 
     bottomPriceValue: {
         fontSize: 20,
         fontWeight: '800',
-        color: '#111827',
     },
 
     cartButton: {
@@ -489,17 +473,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 12,
-        backgroundColor: '#1f6f43',
-        shadowColor: '#1f6f43',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.25,
-        shadowRadius: 6,
         elevation: 4,
     },
 
     disabledCartButton: {
         backgroundColor: '#9ca3af',
-        shadowOpacity: 0,
         elevation: 0,
     },
 
@@ -509,3 +487,4 @@ const styles = StyleSheet.create({
         fontWeight: '700',
     },
 });
+

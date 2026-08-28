@@ -59,6 +59,16 @@ export async function createBooking(
             body: request,
         },
         () => {
+            if (request.idempotencyKey) {
+                const existingBooking = mockDatabase.bookings.find(
+                    booking => booking.idempotencyKey === request.idempotencyKey,
+                );
+
+                if (existingBooking) {
+                    return existingBooking;
+                }
+            }
+
             const doctor = mockDatabase.doctors.find(
                 item => item.id === request.doctorId,
             );
@@ -116,6 +126,7 @@ export async function createBooking(
                 createdAt: now,
                 updatedAt: now,
                 scheduledAt: slot.startsAt,
+                idempotencyKey: request.idempotencyKey,
             };
 
             mockDatabase.bookings.push(booking);
@@ -124,6 +135,7 @@ export async function createBooking(
         },
     ).then(response => response.data);
 }
+
 
 export function getUpcomingBookings(): Booking[] {
     const now = Date.now();

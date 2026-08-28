@@ -5,6 +5,7 @@ import {
 
 import { HealthRecordsScreen } from '@/features/health-records/screens/HealthRecordsScreen';
 import { HealthRecordDetailsScreen } from '@/features/health-records/screens/HealthRecordDetailsScreen';
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 export type HealthRecordsStackParamList = {
     HealthRecords: undefined;
@@ -17,19 +18,25 @@ const Stack =
     createNativeStackNavigator<HealthRecordsStackParamList>();
 
 export function HealthRecordsNavigator() {
+    const { theme } = useAppTheme();
+
     return (
         <Stack.Navigator
             screenOptions={{
                 headerStyle: {
-                    backgroundColor: '#ffffff',
+                    backgroundColor: theme.colors.surface,
                 },
-                headerTintColor: '#111827',
+                headerTintColor: theme.colors.text,
                 headerTitleStyle: {
                     fontWeight: '700',
                     fontSize: 18,
                 },
+                contentStyle: {
+                    backgroundColor: theme.colors.background,
+                },
                 headerShadowVisible: true,
             }}>
+
             <Stack.Screen
                 name="HealthRecords"
                 component={HealthRecordsScreen}

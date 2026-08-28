@@ -9,12 +9,14 @@ import {
 } from 'react-native';
 
 import type { Attachment } from '../types/health-record.types';
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 type Props = {
     attachment: Attachment;
 };
 
 function AttachmentPreviewComponent({ attachment }: Props) {
+    const { theme } = useAppTheme();
     const [visible, setVisible] = useState(false);
 
     if (attachment.type === 'image') {
@@ -24,14 +26,20 @@ function AttachmentPreviewComponent({ attachment }: Props) {
                     accessibilityRole="button"
                     accessibilityLabel={`Preview ${attachment.fileName}`}
                     onPress={() => setVisible(true)}
-                    style={styles.card}>
+                    style={[
+                        styles.card,
+                        {
+                            backgroundColor: theme.colors.surface,
+                            borderColor: theme.colors.border,
+                        },
+                    ]}>
                     <Image
                         source={{ uri: attachment.thumbnailUri ?? attachment.uri }}
-                        style={styles.thumbnail}
+                        style={[styles.thumbnail, { backgroundColor: theme.colors.border }]}
                         resizeMode="cover"
                     />
 
-                    <Text style={styles.fileName} numberOfLines={1}>
+                    <Text style={[styles.fileName, { color: theme.colors.text }]} numberOfLines={1}>
                         🖼️ {attachment.fileName}
                     </Text>
                 </Pressable>
@@ -46,8 +54,8 @@ function AttachmentPreviewComponent({ attachment }: Props) {
                             accessibilityRole="button"
                             accessibilityLabel="Close attachment preview"
                             onPress={() => setVisible(false)}
-                            style={styles.close}>
-                            <Text style={styles.closeText}>✕ Close</Text>
+                            style={[styles.close, { backgroundColor: theme.colors.surface }]}>
+                            <Text style={[styles.closeText, { color: theme.colors.text }]}>✕ Close</Text>
                         </Pressable>
 
                         <Image
@@ -63,16 +71,16 @@ function AttachmentPreviewComponent({ attachment }: Props) {
     }
 
     return (
-        <View style={styles.pdfCard}>
+        <View style={[styles.pdfCard, { backgroundColor: theme.mode === 'dark' ? '#3b1818' : '#fef2f2', borderColor: theme.mode === 'dark' ? '#5a2323' : '#fee2e2' }]}>
             <View style={styles.pdfIconContainer}>
                 <Text style={styles.pdfBadge}>📄 PDF</Text>
             </View>
 
-            <Text style={styles.pdfFileName} numberOfLines={2}>
+            <Text style={[styles.pdfFileName, { color: theme.colors.text }]} numberOfLines={2}>
                 {attachment.fileName}
             </Text>
 
-            <Text style={styles.pdfHint}>Verified Health Document</Text>
+            <Text style={[styles.pdfHint, { color: theme.colors.danger }]}>Verified Health Document</Text>
         </View>
     );
 }
@@ -85,25 +93,21 @@ const styles = StyleSheet.create({
     card: {
         width: 140,
         marginRight: 12,
-        backgroundColor: '#ffffff',
         borderRadius: 12,
         padding: 8,
         borderWidth: 1,
-        borderColor: '#e5e7eb',
     },
 
     thumbnail: {
         width: '100%',
         height: 100,
         borderRadius: 8,
-        backgroundColor: '#f3f4f6',
     },
 
     fileName: {
         marginTop: 6,
         fontSize: 12,
         fontWeight: '600',
-        color: '#374151',
     },
 
     pdfCard: {
@@ -113,9 +117,7 @@ const styles = StyleSheet.create({
         padding: 12,
         justifyContent: 'space-between',
         borderRadius: 12,
-        backgroundColor: '#fef2f2',
         borderWidth: 1,
-        borderColor: '#fee2e2',
     },
 
     pdfIconContainer: {
@@ -135,14 +137,12 @@ const styles = StyleSheet.create({
     pdfFileName: {
         fontSize: 12,
         fontWeight: '700',
-        color: '#1f2937',
         marginTop: 6,
     },
 
     pdfHint: {
         marginTop: 4,
         fontSize: 10,
-        color: '#991b1b',
         fontWeight: '600',
     },
 
@@ -162,13 +162,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 8,
         borderRadius: 20,
-        backgroundColor: '#ffffff',
     },
 
     closeText: {
         fontWeight: '700',
         fontSize: 13,
-        color: '#111827',
     },
 
     fullImage: {
@@ -183,3 +181,4 @@ const styles = StyleSheet.create({
         marginTop: 16,
     },
 });
+

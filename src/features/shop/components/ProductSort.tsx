@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 
 import type { ProductSortOption } from '../types/shop.types';
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 const OPTIONS: readonly {
     value: ProductSortOption;
@@ -54,6 +55,8 @@ function ProductSortComponent({
     onChange,
     onStockToggle,
 }: Props) {
+    const { theme } = useAppTheme();
+
     return (
         <ScrollView
             horizontal
@@ -66,18 +69,33 @@ function ProductSortComponent({
                 onPress={() => onStockToggle(!inStockOnly)}
                 style={[
                     styles.chip,
-                    inStockOnly ? styles.inStockActiveChip : styles.inactiveChip,
+                    {
+                        backgroundColor: inStockOnly
+                            ? theme.mode === 'dark' ? '#1f3d2b' : '#e8f5e9'
+                            : theme.colors.surface,
+                        borderColor: inStockOnly
+                            ? theme.colors.primary
+                            : theme.colors.border,
+                    },
                 ]}>
                 <View
                     style={[
                         styles.dot,
-                        inStockOnly ? styles.activeDot : styles.inactiveDot,
+                        {
+                            backgroundColor: inStockOnly
+                                ? theme.colors.primary
+                                : theme.colors.textSecondary,
+                        },
                     ]}
                 />
                 <Text
                     style={[
                         styles.text,
-                        inStockOnly ? styles.inStockActiveText : styles.inactiveText,
+                        {
+                            color: inStockOnly
+                                ? theme.colors.primary
+                                : theme.colors.text,
+                        },
                     ]}>
                     In Stock
                 </Text>
@@ -95,13 +113,24 @@ function ProductSortComponent({
                         onPress={() => onChange(option.value)}
                         style={[
                             styles.chip,
-                            active ? styles.activeChip : styles.inactiveChip,
+                            {
+                                backgroundColor: active
+                                    ? theme.colors.primary
+                                    : theme.colors.surface,
+                                borderColor: active
+                                    ? theme.colors.primary
+                                    : theme.colors.border,
+                            },
                         ]}>
                         <Text style={styles.icon}>{option.icon}</Text>
                         <Text
                             style={[
                                 styles.text,
-                                active ? styles.activeText : styles.inactiveText,
+                                {
+                                    color: active
+                                        ? '#FFFFFF'
+                                        : theme.colors.text,
+                                },
                             ]}>
                             {option.label}
                         </Text>
@@ -130,24 +159,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         paddingVertical: 7,
         borderRadius: 16,
-    },
-
-    inactiveChip: {
-        backgroundColor: '#ffffff',
         borderWidth: 1,
-        borderColor: '#e5e7eb',
-    },
-
-    activeChip: {
-        backgroundColor: '#1f6f43',
-        borderWidth: 1,
-        borderColor: '#1f6f43',
-    },
-
-    inStockActiveChip: {
-        backgroundColor: '#e8f5e9',
-        borderWidth: 1,
-        borderColor: '#2e7d32',
     },
 
     dot: {
@@ -157,14 +169,6 @@ const styles = StyleSheet.create({
         marginRight: 6,
     },
 
-    inactiveDot: {
-        backgroundColor: '#9ca3af',
-    },
-
-    activeDot: {
-        backgroundColor: '#2e7d32',
-    },
-
     icon: {
         fontSize: 12,
         marginRight: 5,
@@ -172,18 +176,7 @@ const styles = StyleSheet.create({
 
     text: {
         fontSize: 12,
-        fontWeight: '600',
+        fontWeight: '700',
     },
-
-    inactiveText: {
-        color: '#4b5563',
-    },
-
-    activeText: {
-        color: '#ffffff',
-    },
-
-    inStockActiveText: {
-        color: '#1b5e20',
-    },
-});
+});
+

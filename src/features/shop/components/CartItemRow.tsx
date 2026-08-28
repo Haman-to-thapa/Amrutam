@@ -18,6 +18,7 @@ import { showToast } from '@/store/slices/toastSlice';
 
 import { useCartProduct } from '../hooks/useCartProducts';
 import type { CartItem, Product } from '../types/shop.types';
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 type Props = {
     item: CartItem;
@@ -25,6 +26,7 @@ type Props = {
 };
 
 function CartItemRowComponent({ item, onPress }: Props) {
+    const { theme } = useAppTheme();
     const dispatch = useAppDispatch();
 
     const {
@@ -36,15 +38,15 @@ function CartItemRowComponent({ item, onPress }: Props) {
     if (isLoading) {
         return (
             <View style={styles.loading}>
-                <ActivityIndicator color="#1f6f43" />
+                <ActivityIndicator color={theme.colors.primary} />
             </View>
         );
     }
 
     if (isError || !product) {
         return (
-            <View style={styles.card}>
-                <Text style={styles.errorText}>
+            <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+                <Text style={[styles.errorText, { color: theme.colors.danger }]}>
                     Product unavailable
                 </Text>
 
@@ -56,8 +58,8 @@ function CartItemRowComponent({ item, onPress }: Props) {
                             removeFromCart(item.productId),
                         )
                     }
-                    style={styles.removeTag}>
-                    <Text style={styles.removeTagText}>
+                    style={[styles.removeTag, { backgroundColor: theme.mode === 'dark' ? '#3b1818' : '#fee2e2' }]}>
+                    <Text style={[styles.removeTagText, { color: theme.colors.danger }]}>
                         Remove
                     </Text>
                 </Pressable>
@@ -97,37 +99,43 @@ function CartItemRowComponent({ item, onPress }: Props) {
             accessibilityRole="button"
             accessibilityLabel={`View ${product.name}`}
             onPress={() => onPress?.(product)}
-            style={styles.card}>
+            style={[
+                styles.card,
+                {
+                    backgroundColor: theme.colors.surface,
+                    borderColor: theme.colors.border,
+                },
+            ]}>
             <Image
                 source={{ uri: product.thumbnailUrl }}
-                style={styles.image}
+                style={[styles.image, { backgroundColor: theme.colors.border }]}
                 accessibilityLabel={product.name}
             />
 
             <View style={styles.content}>
-                <Text style={styles.name} numberOfLines={2}>
+                <Text style={[styles.name, { color: theme.colors.text }]} numberOfLines={2}>
                     {product.name}
                 </Text>
 
-                <Text style={styles.price}>
+                <Text style={[styles.price, { color: theme.colors.textSecondary }]}>
                     ₹{product.price}
                 </Text>
 
-                <Text style={styles.itemTotal}>
+                <Text style={[styles.itemTotal, { color: theme.colors.primary }]}>
                     Subtotal: ₹{product.price * item.quantity}
                 </Text>
 
                 <View style={styles.actions}>
-                    <View style={styles.quantityContainer}>
+                    <View style={[styles.quantityContainer, { backgroundColor: theme.mode === 'dark' ? '#2a2a2a' : '#f3f4f6' }]}>
                         <Pressable
                             accessibilityRole="button"
                             accessibilityLabel={`Decrease ${product.name} quantity`}
                             onPress={handleDecrease}
-                            style={styles.quantityButton}>
-                            <Text style={styles.quantityButtonText}>−</Text>
+                            style={[styles.quantityButton, { backgroundColor: theme.colors.surface }]}>
+                            <Text style={[styles.quantityButtonText, { color: theme.colors.text }]}>−</Text>
                         </Pressable>
 
-                        <Text style={styles.quantity}>
+                        <Text style={[styles.quantity, { color: theme.colors.text }]}>
                             {item.quantity}
                         </Text>
 
@@ -138,9 +146,10 @@ function CartItemRowComponent({ item, onPress }: Props) {
                             onPress={handleIncrease}
                             style={[
                                 styles.quantityButton,
+                                { backgroundColor: theme.colors.surface },
                                 !canIncrease && styles.disabled,
                             ]}>
-                            <Text style={styles.quantityButtonText}>+</Text>
+                            <Text style={[styles.quantityButtonText, { color: theme.colors.text }]}>+</Text>
                         </Pressable>
                     </View>
 
@@ -153,7 +162,7 @@ function CartItemRowComponent({ item, onPress }: Props) {
                             )
                         }
                         style={styles.removeButton}>
-                        <Text style={styles.removeText}>
+                        <Text style={[styles.removeText, { color: theme.colors.danger }]}>
                             Remove
                         </Text>
                     </Pressable>
@@ -174,14 +183,12 @@ const styles = StyleSheet.create({
         marginVertical: 6,
         padding: 12,
         borderRadius: 14,
-        backgroundColor: '#ffffff',
         borderWidth: 1,
-        borderColor: '#e5e7eb',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
         elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.04,
+        shadowRadius: 3,
     },
 
     loading: {
@@ -194,7 +201,6 @@ const styles = StyleSheet.create({
         width: 84,
         height: 84,
         borderRadius: 10,
-        backgroundColor: '#f3f4f6',
     },
 
     content: {
@@ -205,20 +211,17 @@ const styles = StyleSheet.create({
     name: {
         fontSize: 15,
         fontWeight: '700',
-        color: '#111827',
     },
 
     price: {
         marginTop: 4,
         fontSize: 14,
-        color: '#6b7280',
     },
 
     itemTotal: {
         marginTop: 4,
         fontSize: 14,
         fontWeight: '700',
-        color: '#111827',
     },
 
     actions: {
@@ -231,7 +234,6 @@ const styles = StyleSheet.create({
     quantityContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#f3f4f6',
         borderRadius: 8,
         padding: 2,
     },
@@ -240,7 +242,6 @@ const styles = StyleSheet.create({
         width: 28,
         height: 28,
         borderRadius: 6,
-        backgroundColor: '#ffffff',
         alignItems: 'center',
         justifyContent: 'center',
         shadowColor: '#000',
@@ -253,7 +254,6 @@ const styles = StyleSheet.create({
     quantityButtonText: {
         fontSize: 16,
         fontWeight: '700',
-        color: '#111827',
         lineHeight: 18,
     },
 
@@ -265,7 +265,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         fontSize: 13,
         fontWeight: '700',
-        color: '#111827',
     },
 
     removeButton: {
@@ -276,25 +275,22 @@ const styles = StyleSheet.create({
     removeText: {
         fontSize: 12,
         fontWeight: '600',
-        color: '#b91c1c',
     },
 
     removeTag: {
         paddingHorizontal: 8,
         paddingVertical: 4,
         borderRadius: 6,
-        backgroundColor: '#fee2e2',
     },
 
     removeTagText: {
         fontSize: 11,
-        color: '#b91c1c',
         fontWeight: '600',
     },
 
     errorText: {
         fontSize: 13,
-        color: '#b91c1c',
         fontWeight: '600',
     },
 });
+

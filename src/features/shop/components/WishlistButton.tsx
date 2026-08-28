@@ -12,12 +12,14 @@ import {
 } from '@/store/slices/wishlistSlice';
 import { selectIsProductWishlisted } from '@/store/selectors/wishlistSelectors';
 import type { Product } from '../types/shop.types';
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 type Props = {
     product: Product;
 };
 
 function WishlistButtonComponent({ product }: Props) {
+    const { theme } = useAppTheme();
     const dispatch = useAppDispatch();
 
     const isWishlisted = useAppSelector(
@@ -49,9 +51,16 @@ function WishlistButtonComponent({ product }: Props) {
             onPress={handlePress}
             style={[
                 styles.button,
-                isWishlisted && styles.activeButton,
+                {
+                    backgroundColor: isWishlisted
+                        ? (theme.mode === 'dark' ? '#3b1818' : '#fee2e2')
+                        : theme.colors.surface,
+                    borderColor: isWishlisted
+                        ? '#fca5a5'
+                        : theme.colors.border,
+                },
             ]}>
-            <Text style={[styles.icon, isWishlisted && styles.activeIcon]}>
+            <Text style={[styles.icon, { color: isWishlisted ? theme.colors.danger : theme.colors.textSecondary }]}>
                 {isWishlisted ? '♥' : '♡'}
             </Text>
         </Pressable>
@@ -69,28 +78,17 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 19,
-        backgroundColor: '#ffffff',
         borderWidth: 1,
-        borderColor: '#e5e7eb',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
         elevation: 3,
-    },
-
-    activeButton: {
-        backgroundColor: '#fee2e2',
-        borderColor: '#fca5a5',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
     },
 
     icon: {
         fontSize: 20,
-        color: '#6b7280',
         lineHeight: 22,
     },
-
-    activeIcon: {
-        color: '#dc2626',
-    },
 });
+

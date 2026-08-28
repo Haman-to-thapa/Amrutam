@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 
 import type { ProductCategory } from '../types/shop.types';
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 const CATEGORIES: readonly { name: ProductCategory; icon: string }[] = [
     { name: 'Supplements', icon: '💊' },
@@ -29,6 +30,8 @@ function ProductFiltersComponent({
     selectedCategory,
     onCategoryChange,
 }: Props) {
+    const { theme } = useAppTheme();
+
     return (
         <View style={styles.container}>
             <ScrollView
@@ -41,17 +44,24 @@ function ProductFiltersComponent({
                     onPress={() => onCategoryChange(undefined)}
                     style={[
                         styles.chip,
-                        selectedCategory === undefined
-                            ? styles.activeChip
-                            : styles.inactiveChip,
+                        {
+                            backgroundColor: selectedCategory === undefined
+                                ? theme.colors.primary
+                                : theme.colors.surface,
+                            borderColor: selectedCategory === undefined
+                                ? theme.colors.primary
+                                : theme.colors.border,
+                        },
                     ]}>
                     <Text style={styles.icon}>🌿</Text>
                     <Text
                         style={[
                             styles.text,
-                            selectedCategory === undefined
-                                ? styles.activeText
-                                : styles.inactiveText,
+                            {
+                                color: selectedCategory === undefined
+                                    ? '#FFFFFF'
+                                    : theme.colors.text,
+                            },
                         ]}>
                         All
                     </Text>
@@ -68,17 +78,24 @@ function ProductFiltersComponent({
                             onPress={() => onCategoryChange(cat.name)}
                             style={[
                                 styles.chip,
-                                active
-                                    ? styles.activeChip
-                                    : styles.inactiveChip,
+                                {
+                                    backgroundColor: active
+                                        ? theme.colors.primary
+                                        : theme.colors.surface,
+                                    borderColor: active
+                                        ? theme.colors.primary
+                                        : theme.colors.border,
+                                },
                             ]}>
                             <Text style={styles.icon}>{cat.icon}</Text>
                             <Text
                                 style={[
                                     styles.text,
-                                    active
-                                        ? styles.activeText
-                                        : styles.inactiveText,
+                                    {
+                                        color: active
+                                            ? '#FFFFFF'
+                                            : theme.colors.text,
+                                    },
                                 ]}>
                                 {cat.name}
                             </Text>
@@ -111,23 +128,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 14,
         paddingVertical: 8,
         borderRadius: 20,
-    },
-
-    inactiveChip: {
-        backgroundColor: '#ffffff',
         borderWidth: 1,
-        borderColor: '#e5e7eb',
-    },
-
-    activeChip: {
-        backgroundColor: '#1f6f43',
-        borderWidth: 1,
-        borderColor: '#1f6f43',
-        shadowColor: '#1f6f43',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        elevation: 3,
     },
 
     icon: {
@@ -137,14 +138,7 @@ const styles = StyleSheet.create({
 
     text: {
         fontSize: 13,
-        fontWeight: '600',
+        fontWeight: '700',
     },
-
-    inactiveText: {
-        color: '#374151',
-    },
-
-    activeText: {
-        color: '#ffffff',
-    },
-});
+});
+

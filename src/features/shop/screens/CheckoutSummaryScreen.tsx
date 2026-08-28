@@ -21,8 +21,10 @@ import { LoadingState } from '@/components/feedback/LoadingState';
 import type { ShopStackParamList } from '@/app/navigation/ShopNavigator';
 import { calculateSubtotal } from '../utils/cartUtils';
 import { useCartProducts } from '../hooks/useCartProducts';
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 export function CheckoutSummaryScreen() {
+    const { theme } = useAppTheme();
     const insets = useSafeAreaInsets();
     const dispatch = useAppDispatch();
     const navigation =
@@ -95,7 +97,7 @@ export function CheckoutSummaryScreen() {
 
     if (cartItems.length === 0) {
         return (
-            <View style={styles.empty}>
+            <View style={[styles.empty, { backgroundColor: theme.colors.background }]}>
                 <EmptyState
                     title="No items to checkout"
                     message="Your cart is currently empty."
@@ -108,7 +110,7 @@ export function CheckoutSummaryScreen() {
     const grandTotal = subtotal + deliveryFee;
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={[
@@ -117,15 +119,15 @@ export function CheckoutSummaryScreen() {
                 ]}>
                 {/* Header */}
                 <View style={styles.sectionHeader}>
-                    <Text style={styles.title}>Order Summary</Text>
-                    <Text style={styles.subtitle}>
+                    <Text style={[styles.title, { color: theme.colors.text }]}>Order Summary</Text>
+                    <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
                         Review your selected Ayurvedic remedies
                     </Text>
                 </View>
 
                 {/* Items Card */}
-                <View style={styles.card}>
-                    <Text style={styles.cardHeader}>Items in Order</Text>
+                <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+                    <Text style={[styles.cardHeader, { color: theme.colors.text }]}>Items in Order</Text>
 
                     {cartItems.map(item => {
                         const product = productMap.get(item.productId);
@@ -137,19 +139,19 @@ export function CheckoutSummaryScreen() {
                         return (
                             <View
                                 key={item.productId}
-                                style={styles.itemRow}>
+                                style={[styles.itemRow, { borderBottomColor: theme.colors.border }]}>
                                 <View style={styles.itemInfo}>
                                     <Text
-                                        style={styles.productName}
+                                        style={[styles.productName, { color: theme.colors.text }]}
                                         numberOfLines={1}>
                                         {product.name}
                                     </Text>
-                                    <Text style={styles.itemQtyPrice}>
+                                    <Text style={[styles.itemQtyPrice, { color: theme.colors.textSecondary }]}>
                                         Qty: {item.quantity} × ₹{product.price}
                                     </Text>
                                 </View>
 
-                                <Text style={styles.productTotal}>
+                                <Text style={[styles.productTotal, { color: theme.colors.primary }]}>
                                     ₹{product.price * item.quantity}
                                 </Text>
                             </View>
@@ -158,38 +160,38 @@ export function CheckoutSummaryScreen() {
                 </View>
 
                 {/* Bill Breakdown Card */}
-                <View style={styles.card}>
-                    <Text style={styles.cardHeader}>Bill Details</Text>
+                <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+                    <Text style={[styles.cardHeader, { color: theme.colors.text }]}>Bill Details</Text>
 
                     <View style={styles.totalRow}>
-                        <Text style={styles.totalLabel}>Item Subtotal</Text>
-                        <Text style={styles.totalValue}>₹{subtotal.toLocaleString('en-IN')}</Text>
+                        <Text style={[styles.totalLabel, { color: theme.colors.textSecondary }]}>Item Subtotal</Text>
+                        <Text style={[styles.totalValue, { color: theme.colors.text }]}>₹{subtotal.toLocaleString('en-IN')}</Text>
                     </View>
 
                     <View style={styles.totalRow}>
-                        <Text style={styles.totalLabel}>Delivery Fee</Text>
-                        <Text style={styles.freeDelivery}>FREE</Text>
+                        <Text style={[styles.totalLabel, { color: theme.colors.textSecondary }]}>Delivery Fee</Text>
+                        <Text style={[styles.freeDelivery, { color: theme.colors.primary }]}>FREE</Text>
                     </View>
 
                     <View style={styles.totalRow}>
-                        <Text style={styles.totalLabel}>Ayurvedic Packaging</Text>
-                        <Text style={styles.freeDelivery}>FREE</Text>
+                        <Text style={[styles.totalLabel, { color: theme.colors.textSecondary }]}>Ayurvedic Packaging</Text>
+                        <Text style={[styles.freeDelivery, { color: theme.colors.primary }]}>FREE</Text>
                     </View>
 
-                    <View style={styles.divider} />
+                    <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
 
                     <View style={styles.totalRow}>
-                        <Text style={styles.grandTotalLabel}>To Pay</Text>
-                        <Text style={styles.grandTotal}>₹{grandTotal.toLocaleString('en-IN')}</Text>
+                        <Text style={[styles.grandTotalLabel, { color: theme.colors.text }]}>To Pay</Text>
+                        <Text style={[styles.grandTotal, { color: theme.colors.primary }]}>₹{grandTotal.toLocaleString('en-IN')}</Text>
                     </View>
                 </View>
 
                 {/* Guarantee Banner */}
-                <View style={styles.guaranteeCard}>
+                <View style={[styles.guaranteeCard, { backgroundColor: theme.mode === 'dark' ? '#1f3d2b' : '#e8f5e9', borderColor: theme.mode === 'dark' ? '#2d573d' : '#c8e6c9' }]}>
                     <Text style={styles.guaranteeIcon}>🌿</Text>
                     <View style={styles.guaranteeContent}>
-                        <Text style={styles.guaranteeTitle}>100% Authentic Ayurveda</Text>
-                        <Text style={styles.guaranteeText}>
+                        <Text style={[styles.guaranteeTitle, { color: theme.colors.primary }]}>100% Authentic Ayurveda</Text>
+                        <Text style={[styles.guaranteeText, { color: theme.mode === 'dark' ? '#a7f3d0' : '#2e7d32' }]}>
                             Prepared with classical herbs and tested for purity.
                         </Text>
                     </View>
@@ -197,17 +199,17 @@ export function CheckoutSummaryScreen() {
             </ScrollView>
 
             {/* Bottom Action Bar */}
-            <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 12) }]}>
+            <View style={[styles.bottomBar, { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.border, paddingBottom: Math.max(insets.bottom, 12) }]}>
                 <View style={styles.bottomColumn}>
-                    <Text style={styles.bottomLabel}>Total Amount</Text>
-                    <Text style={styles.bottomTotal}>₹{grandTotal.toLocaleString('en-IN')}</Text>
+                    <Text style={[styles.bottomLabel, { color: theme.colors.textSecondary }]}>Total Amount</Text>
+                    <Text style={[styles.bottomTotal, { color: theme.colors.text }]}>₹{grandTotal.toLocaleString('en-IN')}</Text>
                 </View>
 
                 <Pressable
                     accessibilityRole="button"
                     accessibilityLabel="Place order"
                     onPress={handlePlaceOrder}
-                    style={styles.placeOrderButton}>
+                    style={[styles.placeOrderButton, { backgroundColor: theme.colors.primary }]}>
                     <Text style={styles.placeOrderText}>Place Order 🛍️</Text>
                 </Pressable>
             </View>
@@ -218,7 +220,6 @@ export function CheckoutSummaryScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f8f9fa',
     },
 
     content: {
@@ -232,33 +233,28 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 22,
         fontWeight: '800',
-        color: '#111827',
     },
 
     subtitle: {
         fontSize: 13,
-        color: '#6b7280',
         marginTop: 3,
     },
 
     card: {
-        backgroundColor: '#ffffff',
         borderRadius: 16,
         padding: 16,
         marginBottom: 14,
         borderWidth: 1,
-        borderColor: '#e5e7eb',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.04,
-        shadowRadius: 4,
         elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.04,
+        shadowRadius: 3,
     },
 
     cardHeader: {
         fontSize: 15,
         fontWeight: '700',
-        color: '#111827',
         marginBottom: 12,
     },
 
@@ -268,7 +264,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 9,
         borderBottomWidth: 1,
-        borderBottomColor: '#f3f4f6',
     },
 
     itemInfo: {
@@ -279,25 +274,21 @@ const styles = StyleSheet.create({
     productName: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#1f2937',
     },
 
     itemQtyPrice: {
         fontSize: 12,
-        color: '#6b7280',
         marginTop: 2,
     },
 
     productTotal: {
         fontSize: 14,
         fontWeight: '700',
-        color: '#111827',
     },
 
     divider: {
         height: 1,
         marginVertical: 12,
-        backgroundColor: '#e5e7eb',
     },
 
     totalRow: {
@@ -308,39 +299,32 @@ const styles = StyleSheet.create({
 
     totalLabel: {
         fontSize: 14,
-        color: '#4b5563',
     },
 
     totalValue: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#111827',
     },
 
     freeDelivery: {
         fontSize: 13,
         fontWeight: '700',
-        color: '#15803d',
     },
 
     grandTotalLabel: {
         fontSize: 16,
         fontWeight: '800',
-        color: '#111827',
     },
 
     grandTotal: {
         fontSize: 18,
         fontWeight: '800',
-        color: '#1f6f43',
     },
 
     guaranteeCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#e8f5e9',
         borderWidth: 1,
-        borderColor: '#c8e6c9',
         padding: 14,
         borderRadius: 14,
     },
@@ -357,12 +341,10 @@ const styles = StyleSheet.create({
     guaranteeTitle: {
         fontSize: 13,
         fontWeight: '700',
-        color: '#1b5e20',
     },
 
     guaranteeText: {
         fontSize: 11,
-        color: '#2e7d32',
         marginTop: 2,
     },
 
@@ -378,9 +360,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: '#ffffff',
         borderTopWidth: 1,
-        borderTopColor: '#e5e7eb',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -399,14 +379,12 @@ const styles = StyleSheet.create({
 
     bottomLabel: {
         fontSize: 11,
-        color: '#6b7280',
         fontWeight: '600',
     },
 
     bottomTotal: {
         fontSize: 20,
         fontWeight: '800',
-        color: '#111827',
     },
 
     placeOrderButton: {
@@ -416,11 +394,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 12,
-        backgroundColor: '#1f6f43',
-        shadowColor: '#1f6f43',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.25,
-        shadowRadius: 6,
         elevation: 4,
     },
 
@@ -430,3 +403,4 @@ const styles = StyleSheet.create({
         fontWeight: '700',
     },
 });
+

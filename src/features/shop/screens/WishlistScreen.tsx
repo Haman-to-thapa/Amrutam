@@ -17,8 +17,10 @@ import { EmptyState } from '@/components/feedback/EmptyState';
 import type { ShopStackParamList } from '@/app/navigation/ShopNavigator';
 import type { Product } from '../types/shop.types';
 import { WishlistItemCard } from '../components/WishlistItemCard';
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 export function WishlistScreen() {
+    const { theme } = useAppTheme();
     const dispatch = useAppDispatch();
     const navigation =
         useNavigation<NativeStackNavigationProp<ShopStackParamList, 'Wishlist'>>();
@@ -66,7 +68,7 @@ export function WishlistScreen() {
 
     if (wishlistItems.length === 0) {
         return (
-            <View style={styles.emptyContainer}>
+            <View style={[styles.emptyContainer, { backgroundColor: theme.colors.background }]}>
                 <EmptyState
                     title="Your Wishlist is Empty"
                     message="Explore authentic Ayurvedic remedies and tap the heart icon to save them here."
@@ -75,7 +77,7 @@ export function WishlistScreen() {
                     accessibilityRole="button"
                     accessibilityLabel="Explore shop"
                     onPress={() => navigation.navigate('Products')}
-                    style={styles.exploreButton}>
+                    style={[styles.exploreButton, { backgroundColor: theme.colors.primary }]}>
                     <Text style={styles.exploreButtonText}>Explore Products 🌿</Text>
                 </Pressable>
             </View>
@@ -83,9 +85,9 @@ export function WishlistScreen() {
     }
 
     return (
-        <View style={styles.container}>
-            <View style={styles.topBar}>
-                <Text style={styles.itemCountText}>
+        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+            <View style={[styles.topBar, { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.border }]}>
+                <Text style={[styles.itemCountText, { color: theme.colors.text }]}>
                     {wishlistItems.length} Saved {wishlistItems.length === 1 ? 'Item' : 'Items'}
                 </Text>
                 <Pressable
@@ -93,7 +95,7 @@ export function WishlistScreen() {
                     accessibilityLabel="Clear wishlist"
                     onPress={handleClearAll}
                     style={styles.clearButton}>
-                    <Text style={styles.clearButtonText}>Clear All</Text>
+                    <Text style={[styles.clearButtonText, { color: theme.colors.danger }]}>Clear All</Text>
                 </Pressable>
             </View>
 
@@ -110,12 +112,10 @@ export function WishlistScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f8f9fa',
     },
 
     emptyContainer: {
         flex: 1,
-        backgroundColor: '#f8f9fa',
         alignItems: 'center',
         justifyContent: 'center',
         paddingHorizontal: 20,
@@ -123,14 +123,9 @@ const styles = StyleSheet.create({
 
     exploreButton: {
         marginTop: 20,
-        backgroundColor: '#1f6f43',
         paddingHorizontal: 24,
         paddingVertical: 14,
         borderRadius: 12,
-        shadowColor: '#1f6f43',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.2,
-        shadowRadius: 6,
         elevation: 3,
     },
 
@@ -146,15 +141,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 16,
         paddingVertical: 12,
-        backgroundColor: '#ffffff',
         borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
     },
 
     itemCountText: {
         fontSize: 13,
         fontWeight: '700',
-        color: '#374151',
     },
 
     clearButton: {
@@ -165,11 +157,11 @@ const styles = StyleSheet.create({
     clearButtonText: {
         fontSize: 13,
         fontWeight: '600',
-        color: '#b91c1c',
     },
 
     listContent: {
         paddingVertical: 8,
     },
 });
+
 

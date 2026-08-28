@@ -17,6 +17,7 @@ import {
 import { showToast } from '@/store/slices/toastSlice';
 import { useProductDetails } from '../hooks/useProductDetails';
 import type { CartItem, Product } from '../types/shop.types';
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 type Props = {
     item: CartItem;
@@ -24,6 +25,7 @@ type Props = {
 };
 
 function CartItemCardComponent({ item, onPress }: Props) {
+    const { theme } = useAppTheme();
     const dispatch = useAppDispatch();
     const { data: product, isLoading, isError } = useProductDetails(item.productId);
 
@@ -57,22 +59,22 @@ function CartItemCardComponent({ item, onPress }: Props) {
 
     if (isLoading) {
         return (
-            <View style={[styles.card, styles.loadingCard]}>
-                <ActivityIndicator size="small" color="#1f6f43" />
-                <Text style={styles.loadingText}>Loading item...</Text>
+            <View style={[styles.card, styles.loadingCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+                <ActivityIndicator size="small" color={theme.colors.primary} />
+                <Text style={[styles.loadingText, { color: theme.colors.textSecondary }]}>Loading item...</Text>
             </View>
         );
     }
 
     if (isError || !product) {
         return (
-            <View style={[styles.card, styles.errorCard]}>
-                <Text style={styles.errorText}>Product unavailable or removed</Text>
+            <View style={[styles.card, styles.errorCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+                <Text style={[styles.errorText, { color: theme.colors.danger }]}>Product unavailable or removed</Text>
                 <Pressable
                     onPress={handleRemove}
                     accessibilityRole="button"
-                    style={styles.removeTag}>
-                    <Text style={styles.removeTagText}>Remove</Text>
+                    style={[styles.removeTag, { backgroundColor: theme.mode === 'dark' ? '#3b1818' : '#fee2e2' }]}>
+                    <Text style={[styles.removeTagText, { color: theme.colors.danger }]}>Remove</Text>
                 </Pressable>
             </View>
         );
@@ -83,9 +85,15 @@ function CartItemCardComponent({ item, onPress }: Props) {
             accessibilityRole="button"
             accessibilityLabel={`View ${product.name}`}
             onPress={() => onPress?.(product)}
-            style={styles.card}>
+            style={[
+                styles.card,
+                {
+                    backgroundColor: theme.colors.surface,
+                    borderColor: theme.colors.border,
+                },
+            ]}>
             {/* Image */}
-            <View style={styles.imageContainer}>
+            <View style={[styles.imageContainer, { backgroundColor: theme.colors.border }]}>
                 <Image
                     source={{ uri: product.thumbnailUrl }}
                     style={styles.image}
@@ -95,38 +103,38 @@ function CartItemCardComponent({ item, onPress }: Props) {
             {/* Details */}
             <View style={styles.details}>
                 <View style={styles.headerRow}>
-                    <Text style={styles.category}>{product.category}</Text>
+                    <Text style={[styles.category, { color: theme.colors.primary }]}>{product.category}</Text>
                     <Pressable
                         accessibilityRole="button"
                         accessibilityLabel="Remove item"
                         onPress={handleRemove}
-                        style={styles.deleteButton}>
-                        <Text style={styles.deleteIcon}>✕</Text>
+                        style={[styles.deleteButton, { backgroundColor: theme.mode === 'dark' ? '#2a2a2a' : '#f3f4f6' }]}>
+                        <Text style={[styles.deleteIcon, { color: theme.colors.textSecondary }]}>✕</Text>
                     </Pressable>
                 </View>
 
-                <Text style={styles.name} numberOfLines={2}>
+                <Text style={[styles.name, { color: theme.colors.text }]} numberOfLines={2}>
                     {product.name}
                 </Text>
 
                 <View style={styles.priceRow}>
-                    <Text style={styles.unitPrice}>₹{product.price}</Text>
-                    <Text style={styles.totalPrice}>
+                    <Text style={[styles.unitPrice, { color: theme.colors.textSecondary }]}>₹{product.price}</Text>
+                    <Text style={[styles.totalPrice, { color: theme.colors.primary }]}>
                         Subtotal: ₹{product.price * item.quantity}
                     </Text>
                 </View>
 
                 {/* Quantity Stepper */}
-                <View style={styles.stepperContainer}>
+                <View style={[styles.stepperContainer, { backgroundColor: theme.mode === 'dark' ? '#2a2a2a' : '#f3f4f6' }]}>
                     <Pressable
                         accessibilityRole="button"
                         accessibilityLabel="Decrease quantity"
                         onPress={handleDecrease}
-                        style={styles.stepperButton}>
-                        <Text style={styles.stepperButtonText}>−</Text>
+                        style={[styles.stepperButton, { backgroundColor: theme.colors.surface }]}>
+                        <Text style={[styles.stepperButtonText, { color: theme.colors.text }]}>−</Text>
                     </Pressable>
 
-                    <Text style={styles.quantityText}>{item.quantity}</Text>
+                    <Text style={[styles.quantityText, { color: theme.colors.text }]}>{item.quantity}</Text>
 
                     <Pressable
                         accessibilityRole="button"
@@ -135,10 +143,11 @@ function CartItemCardComponent({ item, onPress }: Props) {
                         disabled={product.stockQuantity <= item.quantity}
                         style={[
                             styles.stepperButton,
+                            { backgroundColor: theme.colors.surface },
                             product.stockQuantity <= item.quantity &&
                             styles.disabledStepperButton,
                         ]}>
-                        <Text style={styles.stepperButtonText}>+</Text>
+                        <Text style={[styles.stepperButtonText, { color: theme.colors.text }]}>+</Text>
                     </Pressable>
                 </View>
             </View>
@@ -153,18 +162,16 @@ export const CartItemCard = memo(
 const styles = StyleSheet.create({
     card: {
         flexDirection: 'row',
-        backgroundColor: '#ffffff',
         marginHorizontal: 16,
         marginVertical: 6,
         padding: 12,
         borderRadius: 14,
         borderWidth: 1,
-        borderColor: '#e5e7eb',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
         elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.04,
+        shadowRadius: 3,
     },
 
     loadingCard: {
@@ -176,7 +183,6 @@ const styles = StyleSheet.create({
 
     loadingText: {
         fontSize: 12,
-        color: '#6b7280',
     },
 
     errorCard: {
@@ -187,7 +193,6 @@ const styles = StyleSheet.create({
 
     errorText: {
         fontSize: 13,
-        color: '#b91c1c',
         fontWeight: '500',
     },
 
@@ -195,12 +200,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 5,
         borderRadius: 6,
-        backgroundColor: '#fee2e2',
     },
 
     removeTagText: {
         fontSize: 11,
-        color: '#b91c1c',
         fontWeight: '600',
     },
 
@@ -209,7 +212,6 @@ const styles = StyleSheet.create({
         height: 88,
         borderRadius: 10,
         overflow: 'hidden',
-        backgroundColor: '#f3f4f6',
     },
 
     image: {
@@ -231,7 +233,6 @@ const styles = StyleSheet.create({
 
     category: {
         fontSize: 11,
-        color: '#1f6f43',
         fontWeight: '700',
         textTransform: 'uppercase',
     },
@@ -240,21 +241,18 @@ const styles = StyleSheet.create({
         width: 24,
         height: 24,
         borderRadius: 12,
-        backgroundColor: '#f3f4f6',
         alignItems: 'center',
         justifyContent: 'center',
     },
 
     deleteIcon: {
         fontSize: 11,
-        color: '#6b7280',
         fontWeight: '800',
     },
 
     name: {
         fontSize: 14,
         fontWeight: '700',
-        color: '#111827',
         marginTop: 2,
     },
 
@@ -267,20 +265,17 @@ const styles = StyleSheet.create({
 
     unitPrice: {
         fontSize: 14,
-        color: '#6b7280',
     },
 
     totalPrice: {
         fontSize: 14,
         fontWeight: '700',
-        color: '#111827',
     },
 
     stepperContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         alignSelf: 'flex-start',
-        backgroundColor: '#f3f4f6',
         borderRadius: 8,
         padding: 2,
         marginTop: 8,
@@ -290,7 +285,6 @@ const styles = StyleSheet.create({
         width: 28,
         height: 28,
         borderRadius: 6,
-        backgroundColor: '#ffffff',
         alignItems: 'center',
         justifyContent: 'center',
         shadowColor: '#000',
@@ -307,7 +301,6 @@ const styles = StyleSheet.create({
     stepperButtonText: {
         fontSize: 16,
         fontWeight: '700',
-        color: '#111827',
         lineHeight: 18,
     },
 
@@ -315,6 +308,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         fontSize: 13,
         fontWeight: '700',
-        color: '#111827',
     },
 });
+

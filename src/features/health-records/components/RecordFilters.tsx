@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 
 import type { HealthRecordType } from '../types/health-record.types';
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 const RECORD_TYPES: readonly {
     value: HealthRecordType | undefined;
@@ -33,6 +34,8 @@ function RecordFiltersComponent({
     selectedType,
     onTypeChange,
 }: Props) {
+    const { theme } = useAppTheme();
+
     return (
         <View style={styles.container}>
             <ScrollView
@@ -53,13 +56,24 @@ function RecordFiltersComponent({
                             }
                             style={[
                                 styles.chip,
-                                active && styles.activeChip,
+                                {
+                                    backgroundColor: active
+                                        ? theme.colors.primary
+                                        : theme.colors.surface,
+                                    borderColor: active
+                                        ? theme.colors.primary
+                                        : theme.colors.border,
+                                },
                             ]}>
                             <Text style={styles.icon}>{option.icon}</Text>
                             <Text
                                 style={[
                                     styles.text,
-                                    active && styles.activeText,
+                                    {
+                                        color: active
+                                            ? '#FFFFFF'
+                                            : theme.colors.text,
+                                    },
                                 ]}>
                                 {option.label}
                             </Text>
@@ -92,18 +106,6 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         borderRadius: 20,
         borderWidth: 1,
-        borderColor: '#e5e7eb',
-        backgroundColor: '#ffffff',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.03,
-        shadowRadius: 2,
-        elevation: 1,
-    },
-
-    activeChip: {
-        backgroundColor: '#1f6f43',
-        borderColor: '#1f6f43',
     },
 
     icon: {
@@ -113,12 +115,7 @@ const styles = StyleSheet.create({
 
     text: {
         fontSize: 13,
-        fontWeight: '600',
-        color: '#4b5563',
-    },
-
-    activeText: {
-        color: '#ffffff',
         fontWeight: '700',
     },
 });
+

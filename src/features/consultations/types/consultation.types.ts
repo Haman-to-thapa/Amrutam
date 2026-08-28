@@ -60,6 +60,7 @@ export type Booking = {
     createdAt: ISODateString;
     updatedAt: ISODateString;
     scheduledAt: ISODateString;
+    idempotencyKey?: string;
 };
 
 
@@ -89,7 +90,9 @@ export type CreateBookingRequest = {
     patientName: string;
     mode: ConsultationMode;
     date: string;
+    idempotencyKey?: string;
 };
+
 
 
 export type CancelBookingRequest = {

@@ -8,6 +8,7 @@ import { ProductDetailsScreen } from '@/features/shop/screens/ProductDetailsScre
 import { WishlistScreen } from '@/features/shop/screens/WishlistScreen';
 import { CartScreen } from '@/features/shop/screens/CartScreen';
 import { CheckoutSummaryScreen } from '@/features/shop/screens/CheckoutSummaryScreen';
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 export type ShopStackParamList = {
     Products: undefined;
@@ -23,19 +24,25 @@ const Stack =
     createNativeStackNavigator<ShopStackParamList>();
 
 export function ShopNavigator() {
+    const { theme } = useAppTheme();
+
     return (
         <Stack.Navigator
             screenOptions={{
                 headerStyle: {
-                    backgroundColor: '#ffffff',
+                    backgroundColor: theme.colors.surface,
                 },
-                headerTintColor: '#111827',
+                headerTintColor: theme.colors.text,
                 headerTitleStyle: {
                     fontWeight: '700',
                     fontSize: 18,
                 },
+                contentStyle: {
+                    backgroundColor: theme.colors.background,
+                },
                 headerShadowVisible: true,
             }}>
+
             <Stack.Screen
                 name="Products"
                 component={ProductListScreen}

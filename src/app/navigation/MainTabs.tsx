@@ -9,11 +9,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ConsultationNavigator } from './ConsultationNavigator';
 import { ShopNavigator } from './ShopNavigator';
 import { HealthRecordsNavigator } from './HealthRecordsNavigator';
+import { SettingsNavigator } from './SettingsNavigator';
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 export type MainTabParamList = {
     Consultation: undefined;
     Shop: undefined;
     HealthRecords: undefined;
+    Settings: undefined;
 };
 
 const Tab =
@@ -44,21 +47,28 @@ function HealthRecordsTabIcon({ focused }: { focused: boolean }) {
     return <TabIcon focused={focused} emoji="📋" />;
 }
 
+function SettingsTabIcon({ focused }: { focused: boolean }) {
+    return <TabIcon focused={focused} emoji="⚙️" />;
+}
+
 export function MainTabs() {
     const insets = useSafeAreaInsets();
+    const { theme } = useAppTheme();
     const bottomPadding = Math.max(insets.bottom, 10);
     const tabHeight = 56 + bottomPadding;
 
     return (
         <Tab.Navigator
             screenOptions={{
-                tabBarActiveTintColor: '#1f6f43',
-                tabBarInactiveTintColor: '#6b7280',
+                tabBarActiveTintColor: theme.colors.primary,
+                tabBarInactiveTintColor: theme.colors.textSecondary,
                 tabBarStyle: [
                     styles.tabBar,
                     {
                         height: tabHeight,
                         paddingBottom: bottomPadding,
+                        backgroundColor: theme.colors.surface,
+                        borderTopColor: theme.colors.border,
                     },
                 ],
                 tabBarLabelStyle: styles.tabBarLabel,
@@ -94,9 +104,20 @@ export function MainTabs() {
                     tabBarIcon: HealthRecordsTabIcon,
                 }}
             />
+
+            <Tab.Screen
+                name="Settings"
+                component={SettingsNavigator}
+                options={{
+                    headerShown: false,
+                    title: 'Settings',
+                    tabBarIcon: SettingsTabIcon,
+                }}
+            />
         </Tab.Navigator>
     );
 }
+
 
 
 const styles = StyleSheet.create({

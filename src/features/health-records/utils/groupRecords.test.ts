@@ -53,4 +53,35 @@ describe('groupRecordsByMonthYear', () => {
         const result = groupRecordsByMonthYear([]);
         expect(result).toEqual([]);
     });
+
+    it('sorts records newest first inside a month', () => {
+        const records: HealthRecord[] = [
+            {
+                id: 'record-old',
+                type: 'lab_report',
+                title: 'Old',
+                description: '',
+                date: '2026-08-01T10:00:00.000Z',
+                tags: [],
+                attachments: [],
+                metadata: {},
+            },
+            {
+                id: 'record-new',
+                type: 'lab_report',
+                title: 'New',
+                description: '',
+                date: '2026-08-20T10:00:00.000Z',
+                tags: [],
+                attachments: [],
+                metadata: {},
+            },
+        ];
+
+        const result = groupRecordsByMonthYear(records);
+
+        expect(result[0].data[0].id).toBe('record-new');
+        expect(result[0].data[1].id).toBe('record-old');
+    });
 });
+

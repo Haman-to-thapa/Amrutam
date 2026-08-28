@@ -14,12 +14,25 @@ import { LoadingState } from '@/components/feedback/LoadingState';
 import { useGetUpcomingBookingsQuery } from '../api/bookingApi';
 import { useCancelBookingMutation } from '../api/cancelBookingApi';
 import { UpcomingBookingCard } from '../components/UpcomingBookingCard';
-import { useAppDispatch } from '@/store/hooks';
+import { PendingBookingCard } from '../components/PendingBookingCard';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { selectBookingQueue } from '@/store/selectors/offlineQueueSelectors';
 import { showToast } from '@/store/slices/toastSlice';
 import type { Booking } from '../types/consultation.types';
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 export function UpcomingConsultationScreen() {
+    const { theme } = useAppTheme();
     const dispatch = useAppDispatch();
+    const queuedBookings = useAppSelector(selectBookingQueue);
+
+    const visibleQueue = queuedBookings.filter(
+        item =>
+            item.status === 'pending' ||
+            item.status === 'syncing' ||
+            item.status === 'failed' ||
+            item.status === 'conflict',
+    );
 
     const {
         data: bookings = [],
@@ -82,19 +95,19 @@ export function UpcomingConsultationScreen() {
         [handleCancel, isCancelling],
     );
 
-    if (isLoading) {
+    if (isLoading && visibleQueue.length === 0) {
         return <LoadingState />;
     }
 
-    if (isError) {
+    if (isError && visibleQueue.length === 0) {
         return (
             <ErrorState
                 message={
                     error &&
                         typeof error === 'object' &&
-                        'message' in error &&
-                        typeof error.message === 'string'
-                        ? error.message
+                        'error' in error &&
+                        typeof error.error === 'string'
+                        ? error.error
                         : 'Unable to load consultations.'
                 }
                 onRetry={refetch}
@@ -102,7 +115,7 @@ export function UpcomingConsultationScreen() {
         );
     }
 
-    if (bookings.length === 0) {
+    if (bookings.length === 0 && visibleQueue.length === 0) {
         return (
             <EmptyState
                 title="No upcoming consultations"
@@ -112,9 +125,9 @@ export function UpcomingConsultationScreen() {
     }
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
             {isFetching ? (
-                <Text style={styles.refreshing}>
+                <Text style={[styles.refreshing, { color: theme.colors.textSecondary }]}>
                     Updating...
                 </Text>
             ) : null}
@@ -123,6 +136,22 @@ export function UpcomingConsultationScreen() {
                 data={bookings}
                 renderItem={renderItem}
                 keyExtractor={item => item.id}
+                ListHeaderComponent={
+
+                    visibleQueue.length > 0 ? (
+                        <View style={styles.queueContainer}>
+                            <Text style={[styles.queueHeader, { color: theme.colors.warning }]}>
+                                Offline & Pending Bookings ({visibleQueue.length})
+                            </Text>
+                            {visibleQueue.map(item => (
+                                <PendingBookingCard
+                                    key={item.id}
+                                    item={item}
+                                />
+                            ))}
+                        </View>
+                    ) : null
+                }
                 refreshControl={
                     <RefreshControl
                         refreshing={isFetching && !isLoading}
@@ -131,28 +160,39 @@ export function UpcomingConsultationScreen() {
                         }}
                     />
                 }
-
                 contentContainerStyle={styles.content}
             />
         </View>
     );
 }
 
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f8f9fa',
     },
 
     content: {
-        padding: 16,
+        paddingVertical: 16,
         paddingBottom: 32,
+    },
+
+    queueContainer: {
+        marginBottom: 8,
+    },
+
+    queueHeader: {
+        fontSize: 14,
+        fontWeight: '700',
+        marginHorizontal: 16,
+        marginBottom: 10,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
     },
 
     refreshing: {
         paddingHorizontal: 16,
         paddingTop: 10,
         fontSize: 12,
-        color: '#6b7280',
     },
-});
+});

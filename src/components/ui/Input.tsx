@@ -5,19 +5,41 @@ import {
     type TextInputProps,
 } from 'react-native';
 
-type Props = TextInputProps;
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
-function InputComponent(props: Props) {
+function InputComponent({
+    style,
+    ...props
+}: TextInputProps) {
+    const { theme } = useAppTheme();
+
     return (
         <TextInput
             {...props}
-            placeholderTextColor="#777"
-            style={[styles.input, props.style]}
+            placeholderTextColor={
+                theme.colors.textSecondary
+            }
+            selectionColor={
+                theme.colors.primary
+            }
+            style={[
+                styles.input,
+                {
+                    color: theme.colors.text,
+                    backgroundColor:
+                        theme.colors.surface,
+                    borderColor:
+                        theme.colors.border,
+                },
+                style,
+            ]}
         />
     );
 }
 
-export const Input = memo(InputComponent);
+export const Input = memo(
+    InputComponent,
+);
 
 const styles = StyleSheet.create({
     input: {
@@ -26,10 +48,7 @@ const styles = StyleSheet.create({
         marginBottom: 12,
         paddingHorizontal: 14,
         borderWidth: 1,
-        borderColor: '#ddd',
         borderRadius: 10,
-        backgroundColor: '#fff',
-        color: '#111827',
         fontSize: 15,
     },
-});
+});

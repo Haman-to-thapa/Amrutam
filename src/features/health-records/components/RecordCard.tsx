@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 
 import type { HealthRecord } from '../types/health-record.types';
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 type Props = {
     record: HealthRecord;
@@ -50,6 +51,7 @@ const TYPE_CONFIG: Record<
 };
 
 function RecordCardComponent({ record, onPress }: Props) {
+    const { theme } = useAppTheme();
     const date = new Date(record.date);
     const config = TYPE_CONFIG[record.type] ?? {
         label: record.type,
@@ -63,7 +65,13 @@ function RecordCardComponent({ record, onPress }: Props) {
             accessibilityRole="button"
             accessibilityLabel={`Open ${record.title}`}
             onPress={() => onPress?.(record)}
-            style={styles.card}>
+            style={[
+                styles.card,
+                {
+                    backgroundColor: theme.colors.surface,
+                    borderColor: theme.colors.border,
+                },
+            ]}>
 
             {/* Top Type Pill & Date */}
             <View style={styles.header}>
@@ -74,7 +82,11 @@ function RecordCardComponent({ record, onPress }: Props) {
                     </Text>
                 </View>
 
-                <Text style={styles.date}>
+                <Text
+                    style={[
+                        styles.date,
+                        { color: theme.colors.textSecondary },
+                    ]}>
                     {date.toLocaleDateString('en-IN', {
                         day: 'numeric',
                         month: 'short',
@@ -84,25 +96,43 @@ function RecordCardComponent({ record, onPress }: Props) {
             </View>
 
             {/* Title */}
-            <Text style={styles.title} numberOfLines={2}>
+            <Text
+                style={[
+                    styles.title,
+                    { color: theme.colors.text },
+                ]}
+                numberOfLines={2}>
                 {record.title}
             </Text>
 
             {/* Description */}
-            <Text style={styles.description} numberOfLines={3}>
+            <Text
+                style={[
+                    styles.description,
+                    { color: theme.colors.textSecondary },
+                ]}
+                numberOfLines={3}>
                 {record.description}
             </Text>
 
             {/* Metadata (Doctor / Facility) */}
             <View style={styles.metaRow}>
                 {record.doctorName ? (
-                    <Text style={styles.metaText}>
+                    <Text
+                        style={[
+                            styles.metaText,
+                            { color: theme.colors.textSecondary },
+                        ]}>
                         👨‍⚕️ {record.doctorName}
                     </Text>
                 ) : null}
 
                 {record.facilityName ? (
-                    <Text style={styles.metaText}>
+                    <Text
+                        style={[
+                            styles.metaText,
+                            { color: theme.colors.textSecondary },
+                        ]}>
                         🏥 {record.facilityName}
                     </Text>
                 ) : null}
@@ -114,8 +144,19 @@ function RecordCardComponent({ record, onPress }: Props) {
                     {record.tags.map(tag => (
                         <View
                             key={`${record.id}-${tag}`}
-                            style={styles.tagPill}>
-                            <Text style={styles.tagText}>#{tag}</Text>
+                            style={[
+                                styles.tagPill,
+                                {
+                                    backgroundColor: theme.mode === 'dark' ? '#2a2a2a' : '#f3f4f6',
+                                },
+                            ]}>
+                            <Text
+                                style={[
+                                    styles.tagText,
+                                    { color: theme.colors.text },
+                                ]}>
+                                #{tag}
+                            </Text>
                         </View>
                     ))}
                 </View>
@@ -123,6 +164,7 @@ function RecordCardComponent({ record, onPress }: Props) {
         </Pressable>
     );
 }
+
 
 
 export const RecordCard = memo(

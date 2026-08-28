@@ -37,10 +37,12 @@ import type {
     ProductCategory,
     ProductSortOption,
 } from '../types/shop.types';
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 const PAGE_SIZE = 30;
 
 export function ProductListScreen() {
+    const { theme } = useAppTheme();
     const navigation =
         useNavigation<NativeStackNavigationProp<ShopStackParamList, 'Products'>>();
     const wishlistItems = useAppSelector(selectWishlistItems);
@@ -69,41 +71,40 @@ export function ProductListScreen() {
 
     const debouncedSearch = useDebounce(search, 350);
 
-    const resetListing = useCallback(() => {
-        setPage(1);
-        setLoadedProducts([]);
-    }, []);
-
     const handleSearchChange = useCallback(
-        (value: string) => {
-            setSearch(value);
-            resetListing();
+        (text: string) => {
+            setSearch(text);
+            setPage(1);
+            setLoadedProducts([]);
         },
-        [resetListing],
+        [],
     );
 
     const handleCategoryChange = useCallback(
-        (value: ProductCategory | undefined) => {
-            setCategory(value);
-            resetListing();
+        (selectedCategory: ProductCategory | undefined) => {
+            setCategory(selectedCategory);
+            setPage(1);
+            setLoadedProducts([]);
         },
-        [resetListing],
+        [],
     );
 
     const handleStockChange = useCallback(
-        (value: boolean) => {
-            setInStockOnly(value);
-            resetListing();
+        (stockOnly: boolean) => {
+            setInStockOnly(stockOnly);
+            setPage(1);
+            setLoadedProducts([]);
         },
-        [resetListing],
+        [],
     );
 
     const handleSortChange = useCallback(
-        (value: ProductSortOption) => {
-            setSort(value);
-            resetListing();
+        (selectedSort: ProductSortOption) => {
+            setSort(selectedSort);
+            setPage(1);
+            setLoadedProducts([]);
         },
-        [resetListing],
+        [],
     );
 
     const handleAdvancedFilters = useCallback(
@@ -115,9 +116,10 @@ export function ProductListScreen() {
             setMinPrice(filters.minPrice);
             setMaxPrice(filters.maxPrice);
             setMinRating(filters.minRating);
-            resetListing();
+            setPage(1);
+            setLoadedProducts([]);
         },
-        [resetListing],
+        [],
     );
 
     const params = useMemo(
@@ -125,23 +127,23 @@ export function ProductListScreen() {
             page,
             pageSize: PAGE_SIZE,
             search: debouncedSearch.trim() || undefined,
+            sort,
             filters: {
-                categories: category ? [category] : undefined,
+                category,
+                inStockOnly: inStockOnly || undefined,
                 minPrice,
                 maxPrice,
                 minRating,
-                inStockOnly,
             },
-            sort,
         }),
         [
-            page,
-            debouncedSearch,
             category,
-            minPrice,
-            maxPrice,
-            minRating,
+            debouncedSearch,
             inStockOnly,
+            maxPrice,
+            minPrice,
+            minRating,
+            page,
             sort,
         ],
     );
@@ -231,14 +233,14 @@ export function ProductListScreen() {
     }
 
     return (
-        <View style={styles.container}>
-            <View style={styles.header}>
+        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+            <View style={[styles.header, { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.border }]}>
                 <View style={styles.titleRow}>
                     <View style={styles.titleTextContainer}>
-                        <Text style={styles.title}>
+                        <Text style={[styles.title, { color: theme.colors.text }]}>
                             Ayurvedic Shop
                         </Text>
-                        <Text style={styles.subtitle}>
+                        <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
                             Authentic Wellness Formulations
                         </Text>
                     </View>
@@ -247,7 +249,7 @@ export function ProductListScreen() {
                             accessibilityRole="button"
                             accessibilityLabel="Open wishlist"
                             onPress={() => navigation.navigate('Wishlist')}
-                            style={styles.headerWishlistButton}>
+                            style={[styles.headerWishlistButton, { backgroundColor: theme.mode === 'dark' ? '#3b1818' : '#fef2f2', borderColor: theme.mode === 'dark' ? '#5c2222' : '#fee2e2' }]}>
                             <Text style={styles.headerWishlistIcon}>♥</Text>
                             {wishlistItems.length > 0 ? (
                                 <View style={styles.headerWishlistBadge}>
@@ -261,10 +263,10 @@ export function ProductListScreen() {
                             accessibilityRole="button"
                             accessibilityLabel="Open cart"
                             onPress={() => navigation.navigate('Cart')}
-                            style={styles.headerCartButton}>
+                            style={[styles.headerCartButton, { backgroundColor: theme.mode === 'dark' ? '#1f3d2b' : '#e8f5e9', borderColor: theme.mode === 'dark' ? '#2d573d' : '#c8e6c9' }]}>
                             <Text style={styles.headerCartIcon}>🛍️</Text>
                             {cartCount > 0 ? (
-                                <View style={styles.headerCartBadge}>
+                                <View style={[styles.headerCartBadge, { backgroundColor: theme.colors.primary }]}>
                                     <Text style={styles.headerCartBadgeText}>
                                         {cartCount}
                                     </Text>
@@ -310,19 +312,19 @@ export function ProductListScreen() {
                 {/* Active Filters Summary Chips (If any applied) */}
                 {(category || minPrice || maxPrice || minRating || inStockOnly) ? (
                     <View style={styles.activeTagsRow}>
-                        <Text style={styles.activeTagsLabel}>Active:</Text>
+                        <Text style={[styles.activeTagsLabel, { color: theme.colors.textSecondary }]}>Active:</Text>
                         {category ? (
                             <Pressable
                                 onPress={() => handleCategoryChange(undefined)}
-                                style={styles.activeTag}>
-                                <Text style={styles.activeTagText}>{category} ✕</Text>
+                                style={[styles.activeTag, { backgroundColor: theme.mode === 'dark' ? '#1f3d2b' : '#e8f5e9', borderColor: theme.mode === 'dark' ? '#2d573d' : '#a7f3d0' }]}>
+                                <Text style={[styles.activeTagText, { color: theme.colors.primary }]}>{category} ✕</Text>
                             </Pressable>
                         ) : null}
                         {minPrice || maxPrice ? (
                             <Pressable
                                 onPress={() => handleAdvancedFilters({ minPrice: undefined, maxPrice: undefined, minRating })}
-                                style={styles.activeTag}>
-                                <Text style={styles.activeTagText}>
+                                style={[styles.activeTag, { backgroundColor: theme.mode === 'dark' ? '#1f3d2b' : '#e8f5e9', borderColor: theme.mode === 'dark' ? '#2d573d' : '#a7f3d0' }]}>
+                                <Text style={[styles.activeTagText, { color: theme.colors.primary }]}>
                                     {minPrice && maxPrice
                                         ? `₹${minPrice}-₹${maxPrice}`
                                         : minPrice
@@ -334,15 +336,15 @@ export function ProductListScreen() {
                         {minRating ? (
                             <Pressable
                                 onPress={() => handleAdvancedFilters({ minPrice, maxPrice, minRating: undefined })}
-                                style={styles.activeTag}>
-                                <Text style={styles.activeTagText}>⭐ {minRating}+ ✕</Text>
+                                style={[styles.activeTag, { backgroundColor: theme.mode === 'dark' ? '#1f3d2b' : '#e8f5e9', borderColor: theme.mode === 'dark' ? '#2d573d' : '#a7f3d0' }]}>
+                                <Text style={[styles.activeTagText, { color: theme.colors.primary }]}>⭐ {minRating}+ ✕</Text>
                             </Pressable>
                         ) : null}
                         {inStockOnly ? (
                             <Pressable
                                 onPress={() => handleStockChange(false)}
-                                style={styles.activeTag}>
-                                <Text style={styles.activeTagText}>In Stock ✕</Text>
+                                style={[styles.activeTag, { backgroundColor: theme.mode === 'dark' ? '#1f3d2b' : '#e8f5e9', borderColor: theme.mode === 'dark' ? '#2d573d' : '#a7f3d0' }]}>
+                                <Text style={[styles.activeTagText, { color: theme.colors.primary }]}>In Stock ✕</Text>
                             </Pressable>
                         ) : null}
                     </View>
@@ -350,17 +352,18 @@ export function ProductListScreen() {
 
                 {/* Results Count Row */}
                 <View style={styles.countRow}>
-                    <Text style={styles.count}>
+                    <Text style={[styles.count, { color: theme.colors.textSecondary }]}>
                         Showing {loadedProducts.length}
                         {data?.total ? ` of ${data.total.toLocaleString('en-IN')}` : ''} products
                     </Text>
                     {isFetching && page > 1 ? (
-                        <Text style={styles.refreshing}>
+                        <Text style={[styles.refreshing, { color: theme.colors.primary }]}>
                             Loading more...
                         </Text>
                     ) : null}
                 </View>
             </View>
+
 
             <FlashList
                 data={loadedProducts}

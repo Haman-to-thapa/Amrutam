@@ -8,6 +8,7 @@ import { DoctorDetailsScreen } from '@/features/consultations/screens/DoctorDeta
 import { BookingConfirmationScreen } from '@/features/consultations/screens/BookingConfirmationScreen';
 import { UpcomingConsultationScreen } from '@/features/consultations/screens/UpcomingConsultationScreen';
 
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 import type { Doctor, DoctorSlot } from '@/features/consultations/types/consultation.types';
 
 export type ConsultationStackParamList = {
@@ -26,19 +27,25 @@ const Stack =
     createNativeStackNavigator<ConsultationStackParamList>();
 
 export function ConsultationNavigator() {
+    const { theme } = useAppTheme();
+
     return (
         <Stack.Navigator
             screenOptions={{
                 headerStyle: {
-                    backgroundColor: '#ffffff',
+                    backgroundColor: theme.colors.surface,
                 },
-                headerTintColor: '#111827',
+                headerTintColor: theme.colors.text,
                 headerTitleStyle: {
                     fontWeight: '700',
                     fontSize: 18,
                 },
+                contentStyle: {
+                    backgroundColor: theme.colors.background,
+                },
                 headerShadowVisible: true,
             }}>
+
             <Stack.Screen
                 name="Doctors"
                 component={DoctorListScreen}

@@ -1,6 +1,11 @@
 import { baseApi } from '@/core/api/baseApi';
 import type { PaginatedResponse } from '@/core/api/api.types';
 import {
+    loadHealthRecordsCache,
+    saveHealthRecordsCache,
+} from '@/core/storage/apiCacheStorage';
+import { createCacheKey } from '@/core/utils/cacheKey';
+import {
     getHealthRecordById,
     getHealthRecords,
 } from '@/mocks/repositories';
@@ -17,13 +22,32 @@ export const healthRecordsApi = baseApi.injectEndpoints({
             HealthRecordListParams
         >({
             async queryFn(params) {
+                const paramsKey = createCacheKey(params);
+
                 try {
                     const response = await getHealthRecords(params);
+
+                    saveHealthRecordsCache({
+                        paramsKey,
+                        data: response.data,
+                        savedAt: Date.now(),
+                    });
 
                     return {
                         data: response.data,
                     };
                 } catch (error) {
+                    const cached = loadHealthRecordsCache();
+
+                    if (
+                        cached &&
+                        cached.paramsKey === paramsKey
+                    ) {
+                        return {
+                            data: cached.data,
+                        };
+                    }
+
                     return {
                         error: {
                             code: 'UNKNOWN',
@@ -39,6 +63,7 @@ export const healthRecordsApi = baseApi.injectEndpoints({
                     };
                 }
             },
+
 
             providesTags: result =>
                 result

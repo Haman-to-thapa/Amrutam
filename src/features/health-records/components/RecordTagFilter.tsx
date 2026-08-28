@@ -5,6 +5,7 @@ import {
     StyleSheet,
     Text,
 } from 'react-native';
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 const TAGS = [
     'wellness',
@@ -26,6 +27,8 @@ function RecordTagFilterComponent({
     selectedTag,
     onChange,
 }: Props) {
+    const { theme } = useAppTheme();
+
     return (
         <ScrollView
             horizontal
@@ -37,12 +40,23 @@ function RecordTagFilterComponent({
                 onPress={() => onChange(undefined)}
                 style={[
                     styles.tag,
-                    !selectedTag && styles.activeTag,
+                    {
+                        backgroundColor: !selectedTag
+                            ? theme.colors.primary
+                            : theme.colors.surface,
+                        borderColor: !selectedTag
+                            ? theme.colors.primary
+                            : theme.colors.border,
+                    },
                 ]}>
                 <Text
                     style={[
                         styles.text,
-                        !selectedTag && styles.activeText,
+                        {
+                            color: !selectedTag
+                                ? '#FFFFFF'
+                                : theme.colors.text,
+                        },
                     ]}>
                     # All Tags
                 </Text>
@@ -59,12 +73,23 @@ function RecordTagFilterComponent({
                         onPress={() => onChange(tag)}
                         style={[
                             styles.tag,
-                            active && styles.activeTag,
+                            {
+                                backgroundColor: active
+                                    ? theme.colors.primary
+                                    : theme.colors.surface,
+                                borderColor: active
+                                    ? theme.colors.primary
+                                    : theme.colors.border,
+                            },
                         ]}>
                         <Text
                             style={[
                                 styles.text,
-                                active && styles.activeText,
+                                {
+                                    color: active
+                                        ? '#FFFFFF'
+                                        : theme.colors.text,
+                                },
                             ]}>
                             #{tag}
                         </Text>
@@ -90,24 +115,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         paddingVertical: 6,
         borderRadius: 16,
-        backgroundColor: '#f3f4f6',
         borderWidth: 1,
-        borderColor: '#e5e7eb',
-    },
-
-    activeTag: {
-        backgroundColor: '#1f6f43',
-        borderColor: '#1f6f43',
     },
 
     text: {
         fontSize: 12,
-        fontWeight: '600',
-        color: '#4b5563',
-    },
-
-    activeText: {
-        color: '#ffffff',
         fontWeight: '700',
     },
 });
+

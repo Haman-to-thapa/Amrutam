@@ -16,6 +16,7 @@ import { EmptyState } from '@/components/feedback/EmptyState';
 import type { HealthRecordsStackParamList } from '@/app/navigation/HealthRecordsNavigator';
 import { useHealthRecordDetails } from '../hooks/useHealthRecordDetails';
 import { AttachmentPreview } from '../components/AttachmentPreview';
+import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 const TYPE_CONFIG = {
     lab_report: { label: 'Lab Report', icon: '🧪', bg: '#eff6ff', color: '#1d4ed8' },
@@ -31,6 +32,7 @@ type DetailsRouteProp = RouteProp<
 >;
 
 export function HealthRecordDetailsScreen() {
+    const { theme } = useAppTheme();
     const insets = useSafeAreaInsets();
     const route = useRoute<DetailsRouteProp>();
     const { recordId } = route.params;
@@ -97,7 +99,7 @@ export function HealthRecordDetailsScreen() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={[
                 styles.content,
-                { paddingBottom: insets.bottom + 32 },
+                { backgroundColor: theme.colors.background, paddingBottom: insets.bottom + 32 },
             ]}>
             {/* Header Type Badge & Title */}
             <View style={[styles.typeBadge, { backgroundColor: typeConfig.bg }]}>
@@ -107,20 +109,20 @@ export function HealthRecordDetailsScreen() {
                 </Text>
             </View>
 
-            <Text style={styles.title}>{record.title}</Text>
+            <Text style={[styles.title, { color: theme.colors.text }]}>{record.title}</Text>
 
-            <Text style={styles.date}>🗓️ {formattedDate}</Text>
+            <Text style={[styles.date, { color: theme.colors.textSecondary }]}>🗓️ {formattedDate}</Text>
 
             {/* Description Card */}
-            <View style={styles.sectionCard}>
-                <Text style={styles.sectionTitle}>Summary & Notes</Text>
-                <Text style={styles.description}>{record.description}</Text>
+            <View style={[styles.sectionCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+                <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Summary & Notes</Text>
+                <Text style={[styles.description, { color: theme.colors.textSecondary }]}>{record.description}</Text>
             </View>
 
             {/* Doctor / Facility Info Card */}
             {record.doctorName || record.facilityName ? (
-                <View style={styles.sectionCard}>
-                    <Text style={styles.sectionTitle}>Medical Provider</Text>
+                <View style={[styles.sectionCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+                    <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Medical Provider</Text>
                     {record.doctorName ? (
                         <InfoRow label="Consulting Doctor" value={record.doctorName} />
                     ) : null}
@@ -132,8 +134,8 @@ export function HealthRecordDetailsScreen() {
 
             {/* Metadata Attributes */}
             {Object.keys(record.metadata).length > 0 ? (
-                <View style={styles.sectionCard}>
-                    <Text style={styles.sectionTitle}>Clinical Details</Text>
+                <View style={[styles.sectionCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+                    <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Clinical Details</Text>
                     {Object.entries(record.metadata).map(([key, value]) => (
                         <InfoRow
                             key={key}
@@ -146,12 +148,19 @@ export function HealthRecordDetailsScreen() {
 
             {/* Tags */}
             {record.tags.length > 0 ? (
-                <View style={styles.sectionCard}>
-                    <Text style={styles.sectionTitle}>Tags & Categories</Text>
+                <View style={[styles.sectionCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+                    <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Tags & Categories</Text>
                     <View style={styles.tagsContainer}>
                         {record.tags.map(tag => (
-                            <View key={tag} style={styles.tagPill}>
-                                <Text style={styles.tagText}>#{tag}</Text>
+                            <View
+                                key={tag}
+                                style={[
+                                    styles.tagPill,
+                                    {
+                                        backgroundColor: theme.mode === 'dark' ? '#2a2a2a' : '#f3f4f6',
+                                    },
+                                ]}>
+                                <Text style={[styles.tagText, { color: theme.colors.text }]}>#{tag}</Text>
                             </View>
                         ))}
                     </View>
@@ -159,8 +168,8 @@ export function HealthRecordDetailsScreen() {
             ) : null}
 
             {/* Attachments Section */}
-            <View style={styles.sectionCard}>
-                <Text style={styles.sectionTitle}>
+            <View style={[styles.sectionCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+                <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
                     Attachments ({record.attachments.length})
                 </Text>
 
@@ -177,7 +186,7 @@ export function HealthRecordDetailsScreen() {
                         ))}
                     </ScrollView>
                 ) : (
-                    <Text style={styles.noAttachment}>
+                    <Text style={[styles.noAttachment, { color: theme.colors.textSecondary }]}>
                         No digital attachments linked with this record.
                     </Text>
                 )}
@@ -193,10 +202,12 @@ function InfoRow({
     label: string;
     value: string;
 }) {
+    const { theme } = useAppTheme();
+
     return (
-        <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>{label}</Text>
-            <Text style={styles.infoValue}>{value}</Text>
+        <View style={[styles.infoRow, { borderBottomColor: theme.colors.border }]}>
+            <Text style={[styles.infoLabel, { color: theme.colors.textSecondary }]}>{label}</Text>
+            <Text style={[styles.infoValue, { color: theme.colors.text }]}>{value}</Text>
         </View>
     );
 }
@@ -204,7 +215,6 @@ function InfoRow({
 const styles = StyleSheet.create({
     content: {
         padding: 16,
-        backgroundColor: '#f8f9fa',
     },
 
     typeBadge: {
@@ -232,53 +242,45 @@ const styles = StyleSheet.create({
         marginTop: 12,
         fontSize: 22,
         fontWeight: '800',
-        color: '#111827',
         lineHeight: 28,
     },
 
     date: {
         marginTop: 6,
         fontSize: 13,
-        color: '#6b7280',
         fontWeight: '500',
     },
 
     sectionCard: {
-        backgroundColor: '#ffffff',
         borderRadius: 14,
         padding: 16,
         marginTop: 14,
         borderWidth: 1,
-        borderColor: '#e5e7eb',
+        elevation: 2,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.03,
+        shadowOpacity: 0.04,
         shadowRadius: 3,
-        elevation: 1,
     },
 
     sectionTitle: {
         fontSize: 15,
         fontWeight: '700',
-        color: '#111827',
         marginBottom: 10,
     },
 
     description: {
         fontSize: 14,
         lineHeight: 22,
-        color: '#374151',
     },
 
     infoRow: {
         paddingVertical: 8,
         borderBottomWidth: 1,
-        borderBottomColor: '#f3f4f6',
     },
 
     infoLabel: {
         fontSize: 12,
-        color: '#6b7280',
         fontWeight: '500',
     },
 
@@ -286,7 +288,6 @@ const styles = StyleSheet.create({
         marginTop: 2,
         fontSize: 14,
         fontWeight: '600',
-        color: '#111827',
     },
 
     tagsContainer: {
@@ -299,13 +300,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         paddingVertical: 6,
         borderRadius: 12,
-        backgroundColor: '#f3f4f6',
     },
 
     tagText: {
         fontSize: 12,
         fontWeight: '600',
-        color: '#374151',
     },
 
     attachmentsContainer: {
@@ -314,7 +313,7 @@ const styles = StyleSheet.create({
 
     noAttachment: {
         fontSize: 13,
-        color: '#9ca3af',
         fontStyle: 'italic',
     },
 });
+
