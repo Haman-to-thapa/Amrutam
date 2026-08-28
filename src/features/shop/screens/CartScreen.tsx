@@ -13,8 +13,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { clearCart } from '@/store/slices/cartSlice';
-import { selectCartItemCount, selectCartItems } from '@/store/selectors/cartSelectors';
+import {
+    selectCartItemCount,
+    selectCartItems,
+    selectIsCartHydrated,
+} from '@/store/selectors/cartSelectors';
 import { EmptyState } from '@/components/feedback/EmptyState';
+import { LoadingState } from '@/components/feedback/LoadingState';
 import type { ShopStackParamList } from '@/app/navigation/ShopNavigator';
 import type { CartItem, Product } from '../types/shop.types';
 import { CartItemCard } from '../components/CartItemCard';
@@ -27,6 +32,7 @@ export function CartScreen() {
 
     const cartItems = useAppSelector(selectCartItems);
     const totalCount = useAppSelector(selectCartItemCount);
+    const hydrated = useAppSelector(selectIsCartHydrated);
 
     const handleProductPress = useCallback(
         (product: Product) => {
@@ -62,7 +68,12 @@ export function CartScreen() {
         [handleProductPress],
     );
 
+    if (!hydrated) {
+        return <LoadingState />;
+    }
+
     if (cartItems.length === 0) {
+
         return (
             <View style={styles.emptyContainer}>
                 <EmptyState

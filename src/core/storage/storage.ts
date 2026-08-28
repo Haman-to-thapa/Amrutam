@@ -34,6 +34,8 @@ export const storageService: StorageService = {
         storage.remove(key);
     },
 
+
+
     contains(key: string) {
         return storage.contains(key);
     },

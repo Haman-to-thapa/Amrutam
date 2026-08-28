@@ -21,3 +21,8 @@ export const selectCartQuantity = (
 
     return item?.quantity ?? 0;
 };
+
+export const selectIsCartHydrated = (
+    state: RootState,
+) => state.cart.hydrated;
+

@@ -4,10 +4,12 @@ import type { CartItem } from '@/features/shop/types/shop.types';
 
 type CartState = {
     items: CartItem[];
+    hydrated: boolean;
 };
 
 const initialState: CartState = {
     items: [],
+    hydrated: false,
 };
 
 const cartSlice = createSlice({
@@ -76,11 +78,12 @@ const cartSlice = createSlice({
             state.items = [];
         },
 
-        setCart(
+        setCartHydrated(
             state,
             action: PayloadAction<CartItem[]>,
         ) {
             state.items = action.payload;
+            state.hydrated = true;
         },
     },
 });
@@ -91,7 +94,8 @@ export const {
     decreaseQuantity,
     removeFromCart,
     clearCart,
-    setCart,
+    setCartHydrated,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;
+

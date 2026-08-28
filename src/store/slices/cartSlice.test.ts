@@ -4,6 +4,7 @@ import reducer, {
     decreaseQuantity,
     increaseQuantity,
     removeFromCart,
+    setCartHydrated,
 } from './cartSlice';
 
 describe('cartSlice', () => {
@@ -66,6 +67,7 @@ describe('cartSlice', () => {
                     addedAt: '2026-08-28T00:00:00.000Z',
                 },
             ],
+            hydrated: true,
         };
 
         const state = reducer(
@@ -80,6 +82,7 @@ describe('cartSlice', () => {
         const state = reducer(
             {
                 items: [item],
+                hydrated: true,
             },
             decreaseQuantity('product-1'),
         );
@@ -91,6 +94,7 @@ describe('cartSlice', () => {
         const state = reducer(
             {
                 items: [item],
+                hydrated: true,
             },
             removeFromCart('product-1'),
         );
@@ -105,10 +109,22 @@ describe('cartSlice', () => {
                     item,
                     { productId: 'product-2', quantity: 2, addedAt: '2026-08-28T00:00:00.000Z' },
                 ],
+                hydrated: true,
             },
             clearCart(),
         );
 
         expect(state.items).toHaveLength(0);
     });
+
+    it('hydrates cart items with setCartHydrated', () => {
+        const storedItems = [
+            { productId: 'product-10', quantity: 4, addedAt: '2026-08-28T00:00:00.000Z' },
+        ];
+
+        const state = reducer(undefined, setCartHydrated(storedItems));
+        expect(state.hydrated).toBe(true);
+        expect(state.items).toEqual(storedItems);
+    });
 });
+
