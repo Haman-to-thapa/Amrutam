@@ -31,11 +31,13 @@ import type {
     HealthRecord,
     HealthRecordType,
 } from '../types/health-record.types';
+import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 const PAGE_SIZE = 50;
 
 export function HealthRecordsScreen() {
+    const { t } = useTranslation();
     const { theme } = useAppTheme();
     const navigation =
         useNavigation<NativeStackNavigationProp<HealthRecordsStackParamList, 'HealthRecords'>>();
@@ -184,11 +186,11 @@ export function HealthRecordsScreen() {
             <View style={[styles.header, { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.border }]}>
                 <View style={styles.titleRow}>
                     <View>
-                        <Text style={[styles.title, { color: theme.colors.text }]}>Medical Timeline</Text>
+                        <Text style={[styles.title, { color: theme.colors.text }]}>{t('health.title')}</Text>
                         <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
                             {loadedRecords.length > 0
-                                ? `${loadedRecords.length}${data?.total ? ` of ${data.total}` : ''} Verified Records`
-                                : '10,000+ Verified Patient Health Records'}
+                                ? `${loadedRecords.length}${data?.total ? ` of ${data.total}` : ''} Records`
+                                : t('health.subtitle')}
                         </Text>
                     </View>
                     {hasFilters ? (
@@ -197,7 +199,7 @@ export function HealthRecordsScreen() {
                             accessibilityLabel="Clear health record filters"
                             onPress={clearFilters}
                             style={[styles.clearButton, { backgroundColor: theme.mode === 'dark' ? '#3b1818' : '#fee2e2' }]}>
-                            <Text style={[styles.clearButtonText, { color: theme.colors.danger }]}>Reset ✕</Text>
+                            <Text style={[styles.clearButtonText, { color: theme.colors.danger }]}>{t('common.reset')} ✕</Text>
                         </Pressable>
                     ) : null}
                 </View>
@@ -207,8 +209,8 @@ export function HealthRecordsScreen() {
                     <Input
                         value={search}
                         onChangeText={setSearch}
-                        placeholder="Search doctor, diagnosis, reports..."
-                        accessibilityLabel="Search health records"
+                        placeholder={t('health.search')}
+                        accessibilityLabel={t('health.search')}
                     />
                 </View>
 

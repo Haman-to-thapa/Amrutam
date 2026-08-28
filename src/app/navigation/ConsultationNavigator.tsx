@@ -14,7 +14,8 @@ import type { Doctor, DoctorSlot } from '@/features/consultations/types/consulta
 export type ConsultationStackParamList = {
     Doctors: undefined;
     DoctorDetails: {
-        doctor: Doctor;
+        doctorId: string;
+        doctor?: Doctor;
     };
     BookingConfirmation: {
         doctor: Doctor;

@@ -10,6 +10,7 @@ import { ConsultationNavigator } from './ConsultationNavigator';
 import { ShopNavigator } from './ShopNavigator';
 import { HealthRecordsNavigator } from './HealthRecordsNavigator';
 import { SettingsNavigator } from './SettingsNavigator';
+import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 export type MainTabParamList = {
@@ -52,6 +53,7 @@ function SettingsTabIcon({ focused }: { focused: boolean }) {
 }
 
 export function MainTabs() {
+    const { t } = useTranslation();
     const insets = useSafeAreaInsets();
     const { theme } = useAppTheme();
     const bottomPadding = Math.max(insets.bottom, 10);
@@ -80,7 +82,7 @@ export function MainTabs() {
                 component={ConsultationNavigator}
                 options={{
                     headerShown: false,
-                    title: 'Consultation',
+                    title: t('nav.consultation'),
                     tabBarIcon: ConsultationTabIcon,
                 }}
             />
@@ -90,7 +92,7 @@ export function MainTabs() {
                 component={ShopNavigator}
                 options={{
                     headerShown: false,
-                    title: 'Shop',
+                    title: t('nav.shop'),
                     tabBarIcon: ShopTabIcon,
                 }}
             />
@@ -100,7 +102,7 @@ export function MainTabs() {
                 component={HealthRecordsNavigator}
                 options={{
                     headerShown: false,
-                    title: 'Health Records',
+                    title: t('nav.healthRecords'),
                     tabBarIcon: HealthRecordsTabIcon,
                 }}
             />
@@ -110,7 +112,7 @@ export function MainTabs() {
                 component={SettingsNavigator}
                 options={{
                     headerShown: false,
-                    title: 'Settings',
+                    title: t('nav.settings'),
                     tabBarIcon: SettingsTabIcon,
                 }}
             />

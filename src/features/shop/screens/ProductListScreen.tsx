@@ -38,11 +38,13 @@ import type {
     ProductCategory,
     ProductSortOption,
 } from '../types/shop.types';
+import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 const PAGE_SIZE = 30;
 
 export function ProductListScreen() {
+    const { t } = useTranslation();
     const { theme } = useAppTheme();
     const navigation =
         useNavigation<NativeStackNavigationProp<ShopStackParamList, 'Products'>>();
@@ -241,10 +243,10 @@ export function ProductListScreen() {
                 <View style={styles.titleRow}>
                     <View style={styles.titleTextContainer}>
                         <Text style={[styles.title, { color: theme.colors.text }]}>
-                            Ayurvedic Shop
+                            {t('shop.title')}
                         </Text>
                         <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
-                            Authentic Wellness Formulations
+                            {t('shop.subtitle')}
                         </Text>
                     </View>
                     <View style={styles.headerActions}>
@@ -286,8 +288,8 @@ export function ProductListScreen() {
                         <Input
                             value={search}
                             onChangeText={handleSearchChange}
-                            placeholder="Search herbs, oils, skincare..."
-                            accessibilityLabel="Search products"
+                            placeholder={t('shop.searchProducts')}
+                            accessibilityLabel={t('shop.searchProducts')}
                         />
                     </View>
                     <ProductAdvancedFilters

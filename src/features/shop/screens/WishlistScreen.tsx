@@ -17,9 +17,11 @@ import { EmptyState } from '@/components/feedback/EmptyState';
 import type { ShopStackParamList } from '@/app/navigation/ShopNavigator';
 import type { Product } from '../types/shop.types';
 import { WishlistItemCard } from '../components/WishlistItemCard';
+import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 export function WishlistScreen() {
+    const { t } = useTranslation();
     const { theme } = useAppTheme();
     const dispatch = useAppDispatch();
     const navigation =
@@ -37,18 +39,18 @@ export function WishlistScreen() {
 
     const handleClearAll = useCallback(() => {
         Alert.alert(
-            'Clear Wishlist',
+            t('common.clear'),
             'Are you sure you want to remove all items from your wishlist?',
             [
-                { text: 'Cancel', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
                 {
-                    text: 'Clear All',
+                    text: t('common.clear'),
                     style: 'destructive',
                     onPress: () => dispatch(clearWishlist()),
                 },
             ],
         );
-    }, [dispatch]);
+    }, [dispatch, t]);
 
     const renderItem = useCallback(
         ({
@@ -70,15 +72,15 @@ export function WishlistScreen() {
         return (
             <View style={[styles.emptyContainer, { backgroundColor: theme.colors.background }]}>
                 <EmptyState
-                    title="Your Wishlist is Empty"
-                    message="Explore authentic Ayurvedic remedies and tap the heart icon to save them here."
+                    title={t('shop.emptyWishlist')}
+                    message={t('shop.emptyWishlistDesc')}
                 />
                 <Pressable
                     accessibilityRole="button"
                     accessibilityLabel="Explore shop"
                     onPress={() => navigation.navigate('Products')}
                     style={[styles.exploreButton, { backgroundColor: theme.colors.primary }]}>
-                    <Text style={styles.exploreButtonText}>Explore Products 🌿</Text>
+                    <Text style={styles.exploreButtonText}>Explore Remedies →</Text>
                 </Pressable>
             </View>
         );
@@ -88,14 +90,14 @@ export function WishlistScreen() {
         <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
             <View style={[styles.topBar, { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.border }]}>
                 <Text style={[styles.itemCountText, { color: theme.colors.text }]}>
-                    {wishlistItems.length} Saved {wishlistItems.length === 1 ? 'Item' : 'Items'}
+                    {wishlistItems.length} {t('shop.items')} ({t('shop.wishlist')})
                 </Text>
                 <Pressable
                     accessibilityRole="button"
                     accessibilityLabel="Clear wishlist"
                     onPress={handleClearAll}
                     style={styles.clearButton}>
-                    <Text style={[styles.clearButtonText, { color: theme.colors.danger }]}>Clear All</Text>
+                    <Text style={[styles.clearButtonText, { color: theme.colors.danger }]}>{t('common.clear')}</Text>
                 </Pressable>
             </View>
 

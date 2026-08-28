@@ -8,6 +8,7 @@ import cartReducer from './slices/cartSlice';
 import offlineQueueReducer from './slices/offlineQueueSlice';
 import themeReducer from './slices/themeSlice';
 import networkReducer from './slices/networkSlice';
+import languageReducer from './slices/languageSlice';
 
 export const rootReducer = combineReducers({
     appTest: appTestReducer,
@@ -17,10 +18,12 @@ export const rootReducer = combineReducers({
     offlineQueue: offlineQueueReducer,
     theme: themeReducer,
     network: networkReducer,
+    language: languageReducer,
     [baseApi.reducerPath]: baseApi.reducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
+
 
 
 

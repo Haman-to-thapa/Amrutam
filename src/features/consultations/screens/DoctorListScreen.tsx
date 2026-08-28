@@ -21,11 +21,13 @@ import type {
 } from '../types/consultation.types';
 import type { RootStackParamList } from '@/app/navigation/RootNavigator';
 
+import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 const PAGE_SIZE = 30;
 
 export function DoctorListScreen() {
+    const { t } = useTranslation();
     const { theme } = useAppTheme();
     const navigation =
         useNavigation<NativeStackNavigationProp<RootStackParamList, 'Doctors'>>();
@@ -34,7 +36,7 @@ export function DoctorListScreen() {
     const [specialization, setSpecialization] =
         useState<DoctorSpecialization | undefined>();
 
-    const debouncedSearch = useDebounce(search, 350);
+    const debouncedSearch = useDebounce(search, 300);
 
     const { data, isLoading, isFetching, isError, error, refetch } =
         useDoctors({
@@ -52,6 +54,7 @@ export function DoctorListScreen() {
                 doctor={item}
                 onPress={() =>
                     navigation.navigate('DoctorDetails', {
+                        doctorId: item.id,
                         doctor: item,
                     })
                 }
@@ -65,14 +68,14 @@ export function DoctorListScreen() {
     return (
         <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
             <View style={styles.header}>
-                <Text style={[styles.title, { color: theme.colors.text }]}>Ayurvedic Doctors</Text>
+                <Text style={[styles.title, { color: theme.colors.text }]}>{t('consultation.title')}</Text>
                 <OfflineDataNotice message="Showing cached doctors list. Connect to internet for live updates." />
 
                 <Input
                     value={search}
                     onChangeText={setSearch}
-                    placeholder="Search doctors..."
-                    accessibilityLabel="Search doctors"
+                    placeholder={t('consultation.searchDoctors')}
+                    accessibilityLabel={t('consultation.searchDoctors')}
                 />
 
                 <DoctorFilters
@@ -81,7 +84,7 @@ export function DoctorListScreen() {
                 />
 
                 {isFetching && !isLoading ? (
-                    <Text style={[styles.refreshing, { color: theme.colors.textSecondary }]}>Updating...</Text>
+                    <Text style={[styles.refreshing, { color: theme.colors.textSecondary }]}>{t('common.updating')}</Text>
                 ) : null}
             </View>
 
@@ -101,8 +104,8 @@ export function DoctorListScreen() {
                 />
             ) : doctors.length === 0 ? (
                 <EmptyState
-                    title="No doctors found"
-                    message="There are no doctors matching your search."
+                    title={t('consultation.noDoctors')}
+                    message={t('consultation.noDoctorsDesc')}
                 />
             ) : (
                 <FlashList

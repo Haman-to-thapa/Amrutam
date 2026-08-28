@@ -23,9 +23,11 @@ import { LoadingState } from '@/components/feedback/LoadingState';
 import type { ShopStackParamList } from '@/app/navigation/ShopNavigator';
 import type { CartItem, Product } from '../types/shop.types';
 import { CartItemRow } from '../components/CartItemRow';
+import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 export function CartScreen() {
+    const { t } = useTranslation();
     const { theme } = useAppTheme();
     const dispatch = useAppDispatch();
     const insets = useSafeAreaInsets();
@@ -47,18 +49,18 @@ export function CartScreen() {
 
     const handleClearCart = useCallback(() => {
         Alert.alert(
-            'Clear Cart',
+            t('common.clear'),
             'Are you sure you want to remove all items from your cart?',
             [
-                { text: 'Cancel', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
                 {
-                    text: 'Clear All',
+                    text: t('common.clear'),
                     style: 'destructive',
                     onPress: () => dispatch(clearCart()),
                 },
             ],
         );
-    }, [dispatch]);
+    }, [dispatch, t]);
 
     const renderItem = useCallback(
         ({ item }: { item: CartItem }) => (
@@ -78,15 +80,15 @@ export function CartScreen() {
         return (
             <View style={[styles.emptyContainer, { backgroundColor: theme.colors.background }]}>
                 <EmptyState
-                    title="Your Cart is Empty"
-                    message="You haven't added any Ayurvedic wellness products yet."
+                    title={t('shop.emptyCart')}
+                    message={t('shop.emptyCartDesc')}
                 />
                 <Pressable
                     accessibilityRole="button"
                     accessibilityLabel="Explore shop"
                     onPress={() => navigation.navigate('Products')}
                     style={[styles.exploreButton, { backgroundColor: theme.colors.primary }]}>
-                    <Text style={styles.exploreButtonText}>Explore Products 🌿</Text>
+                    <Text style={styles.exploreButtonText}>Explore Remedies →</Text>
                 </Pressable>
             </View>
         );
@@ -97,14 +99,14 @@ export function CartScreen() {
             {/* Top Bar */}
             <View style={[styles.topBar, { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.border }]}>
                 <Text style={[styles.itemCountText, { color: theme.colors.text }]}>
-                    {totalCount} {totalCount === 1 ? 'Item' : 'Items'} in Cart
+                    {totalCount} {t('shop.items')} ({t('shop.cart')})
                 </Text>
                 <Pressable
                     accessibilityRole="button"
                     accessibilityLabel="Clear cart"
                     onPress={handleClearCart}
                     style={styles.clearButton}>
-                    <Text style={[styles.clearButtonText, { color: theme.colors.danger }]}>Clear Cart</Text>
+                    <Text style={[styles.clearButtonText, { color: theme.colors.danger }]}>{t('common.clear')}</Text>
                 </Pressable>
             </View>
 
@@ -122,8 +124,8 @@ export function CartScreen() {
             {/* Bottom Checkout Bar */}
             <View style={[styles.bottomBar, { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.border, paddingBottom: Math.max(insets.bottom, 12) }]}>
                 <View style={styles.bottomColumn}>
-                    <Text style={[styles.bottomLabel, { color: theme.colors.textSecondary }]}>Cart Total</Text>
-                    <Text style={[styles.bottomCount, { color: theme.colors.text }]}>({totalCount} items)</Text>
+                    <Text style={[styles.bottomLabel, { color: theme.colors.textSecondary }]}>{t('shop.orderSummary')}</Text>
+                    <Text style={[styles.bottomCount, { color: theme.colors.text }]}>({totalCount} {t('shop.items')})</Text>
                 </View>
 
                 <Pressable
@@ -131,7 +133,7 @@ export function CartScreen() {
                     accessibilityLabel="Proceed to checkout"
                     onPress={() => navigation.navigate('Checkout')}
                     style={[styles.checkoutButton, { backgroundColor: theme.colors.primary }]}>
-                    <Text style={styles.checkoutButtonText}>Proceed to Checkout →</Text>
+                    <Text style={styles.checkoutButtonText}>{t('shop.checkout')} →</Text>
                 </Pressable>
             </View>
         </View>

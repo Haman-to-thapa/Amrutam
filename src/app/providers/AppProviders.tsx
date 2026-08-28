@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ReduxProvider } from './ReduxProvider';
 
 import { ThemeProvider } from './ThemeProvider';
+import { LanguageProvider } from './LanguageProvider';
 import { PersistenceBridge } from './PersistenceBridge';
 import { SyncBridge } from './SyncBridge';
 import { NetworkBridge } from './NetworkBridge';
@@ -14,17 +15,20 @@ export function AppProviders({ children }: PropsWithChildren) {
         <SafeAreaProvider>
             <ReduxProvider>
                 <ThemeProvider>
-                    <PersistenceBridge>
-                        <NetworkBridge />
-                        <SyncBridge />
-                        {children}
-                        <Toast />
-                    </PersistenceBridge>
+                    <LanguageProvider>
+                        <PersistenceBridge>
+                            <NetworkBridge />
+                            <SyncBridge />
+                            {children}
+                            <Toast />
+                        </PersistenceBridge>
+                    </LanguageProvider>
                 </ThemeProvider>
             </ReduxProvider>
         </SafeAreaProvider>
     );
 }
+
 
 
 

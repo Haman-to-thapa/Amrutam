@@ -20,6 +20,7 @@ import {
 } from '@/core/utils/date';
 
 import { useDoctorSlots } from '../hooks/useDoctorSlots';
+import { useDoctorDetails } from '../hooks/useDoctorDetails';
 import { SlotCard } from '../components/SlotCard';
 
 import type { DoctorSlot } from '../types/consultation.types';
@@ -45,7 +46,17 @@ export function DoctorDetailsScreen() {
             NativeStackNavigationProp<RootStackParamList>
         >();
 
-    const { doctor } = route.params;
+    const doctorId = route.params.doctorId ?? route.params.doctor?.id ?? '';
+    const initialDoctor = route.params.doctor;
+
+    const {
+        data: fetchedDoctor,
+        isLoading: isDoctorLoading,
+        isError: isDoctorError,
+        refetch: refetchDoctor,
+    } = useDoctorDetails(doctorId);
+
+    const doctor = initialDoctor ?? fetchedDoctor;
 
     const dates = useMemo(
         () =>
@@ -61,21 +72,20 @@ export function DoctorDetailsScreen() {
 
     const dateParam = formatDateParam(selectedDate);
 
-
     const {
         data: slots,
-        isLoading,
-        isError,
-        error,
-        refetch,
+        isLoading: isSlotsLoading,
+        isError: isSlotsError,
+        error: slotsError,
+        refetch: refetchSlots,
     } = useDoctorSlots({
-        doctorId: doctor.id,
+        doctorId: doctor?.id ?? doctorId,
         date: dateParam,
     });
 
     const handleSlotPress = useCallback(
         (slot: DoctorSlot) => {
-            if (!isSlotBookable(slot)) {
+            if (!doctor || !isSlotBookable(slot)) {
                 return;
             }
 
@@ -86,22 +96,45 @@ export function DoctorDetailsScreen() {
         },
         [doctor, navigation],
     );
-    if (isLoading) {
+
+    if (isDoctorLoading && !doctor) {
         return <LoadingState />;
     }
 
-    if (isError) {
+    if (isDoctorError && !doctor) {
+        return (
+            <ErrorState
+                message="Unable to load doctor profile."
+                onRetry={refetchDoctor}
+            />
+        );
+    }
+
+    if (!doctor) {
+        return (
+            <EmptyState
+                title="Doctor Not Found"
+                message="The requested doctor details could not be found."
+            />
+        );
+    }
+
+    if (isSlotsLoading) {
+        return <LoadingState />;
+    }
+
+    if (isSlotsError) {
         return (
             <ErrorState
                 message={
-                    error &&
-                        typeof error === 'object' &&
-                        'error' in error &&
-                        typeof error.error === 'string'
-                        ? error.error
+                    slotsError &&
+                        typeof slotsError === 'object' &&
+                        'error' in slotsError &&
+                        typeof slotsError.error === 'string'
+                        ? slotsError.error
                         : 'Unable to load slots.'
                 }
-                onRetry={refetch}
+                onRetry={refetchSlots}
             />
         );
     }

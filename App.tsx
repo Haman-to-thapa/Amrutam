@@ -1,6 +1,8 @@
 import React from 'react';
 import { StatusBar, StyleSheet, View } from 'react-native';
 
+import '@/core/i18n/i18n';
+
 import { AppProviders } from '@/app/providers/AppProviders';
 import { useAppTheme } from '@/app/providers/ThemeProvider';
 import { RootNavigator } from '@/app/navigation/RootNavigator';

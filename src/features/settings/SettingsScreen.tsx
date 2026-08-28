@@ -1,55 +1,84 @@
 import React from 'react';
 import {
     Pressable,
+    ScrollView,
     StyleSheet,
     Text,
     View,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { useAppTheme } from '@/app/providers/ThemeProvider';
+import { useLanguage } from '@/app/providers/LanguageProvider';
 import type { ThemeMode } from '@/theme/theme.types';
-
-const OPTIONS: readonly {
-    value: ThemeMode;
-    label: string;
-    icon: string;
-    description: string;
-}[] = [
-    {
-        value: 'system',
-        label: 'System Default',
-        icon: '📱',
-        description: 'Match system display preferences',
-    },
-    {
-        value: 'light',
-        label: 'Light Mode',
-        icon: '☀️',
-        description: 'Clean, radiant Ayurvedic theme',
-    },
-    {
-        value: 'dark',
-        label: 'Dark Mode',
-        icon: '🌙',
-        description: 'Comfortable contrast for low-light reading',
-    },
-];
+import type { Language } from '@/store/slices/languageSlice';
 
 export function SettingsScreen() {
+    const { t } = useTranslation();
     const {
         theme,
         mode,
         setMode,
     } = useAppTheme();
+    const { language, changeLanguage } = useLanguage();
+
+    const THEME_OPTIONS: readonly {
+        value: ThemeMode;
+        label: string;
+        icon: string;
+        description: string;
+    }[] = [
+        {
+            value: 'system',
+            label: t('settings.system'),
+            icon: '📱',
+            description: 'Match system display preferences',
+        },
+        {
+            value: 'light',
+            label: t('settings.light'),
+            icon: '☀️',
+            description: 'Clean, radiant Ayurvedic theme',
+        },
+        {
+            value: 'dark',
+            label: t('settings.dark'),
+            icon: '🌙',
+            description: 'Comfortable contrast for low-light reading',
+        },
+    ];
+
+    const LANGUAGE_OPTIONS: readonly {
+        value: Language;
+        label: string;
+        icon: string;
+        nativeName: string;
+    }[] = [
+        {
+            value: 'en',
+            label: t('settings.english'),
+            icon: '🇬🇧',
+            nativeName: 'English (US/UK)',
+        },
+        {
+            value: 'hi',
+            label: t('settings.hindi'),
+            icon: '🇮🇳',
+            nativeName: 'हिंदी (India)',
+        },
+    ];
 
     return (
-        <View
+        <ScrollView
             style={[
                 styles.container,
                 {
                     backgroundColor: theme.colors.background,
                 },
-            ]}>
+            ]}
+            contentContainerStyle={styles.contentContainer}
+            showsVerticalScrollIndicator={false}>
+            {/* Appearance Section */}
             <Text
                 style={[
                     styles.title,
@@ -57,7 +86,7 @@ export function SettingsScreen() {
                         color: theme.colors.text,
                     },
                 ]}>
-                Appearance
+                {t('settings.appearance')}
             </Text>
             <Text
                 style={[
@@ -70,7 +99,7 @@ export function SettingsScreen() {
             </Text>
 
             <View style={styles.optionsContainer}>
-                {OPTIONS.map(option => {
+                {THEME_OPTIONS.map(option => {
                     const selected = mode === option.value;
 
                     return (
@@ -139,25 +168,125 @@ export function SettingsScreen() {
                     );
                 })}
             </View>
-        </View>
+
+            {/* Language Section */}
+            <Text
+                style={[
+                    styles.title,
+                    styles.sectionMarginTop,
+                    {
+                        color: theme.colors.text,
+                    },
+                ]}>
+                {t('settings.language')}
+            </Text>
+            <Text
+                style={[
+                    styles.subtitle,
+                    {
+                        color: theme.colors.textSecondary,
+                    },
+                ]}>
+                Choose your preferred language for navigation and content.
+            </Text>
+
+            <View style={styles.optionsContainer}>
+                {LANGUAGE_OPTIONS.map(option => {
+                    const selected = language === option.value;
+
+                    return (
+                        <Pressable
+                            key={option.value}
+                            accessibilityRole="radio"
+                            accessibilityState={{
+                                selected,
+                            }}
+                            accessibilityLabel={option.label}
+                            onPress={() => changeLanguage(option.value)}
+                            style={[
+                                styles.option,
+                                {
+                                    backgroundColor: theme.colors.surface,
+                                    borderColor: selected
+                                        ? theme.colors.primary
+                                        : theme.colors.border,
+                                },
+                            ]}>
+                            <View style={styles.optionLeft}>
+                                <Text style={styles.optionIcon}>{option.icon}</Text>
+                                <View style={styles.optionTextContainer}>
+                                    <Text
+                                        style={[
+                                            styles.optionLabel,
+                                            {
+                                                color: theme.colors.text,
+                                            },
+                                        ]}>
+                                        {option.label}
+                                    </Text>
+                                    <Text
+                                        style={[
+                                            styles.optionDesc,
+                                            {
+                                                color: theme.colors.textSecondary,
+                                            },
+                                        ]}>
+                                        {option.nativeName}
+                                    </Text>
+                                </View>
+                            </View>
+
+                            <View
+                                style={[
+                                    styles.radioCircle,
+                                    {
+                                        borderColor: selected
+                                            ? theme.colors.primary
+                                            : theme.colors.border,
+                                    },
+                                ]}>
+                                {selected ? (
+                                    <View
+                                        style={[
+                                            styles.radioDot,
+                                            {
+                                                backgroundColor: theme.colors.primary,
+                                            },
+                                        ]}
+                                    />
+                                ) : null}
+                            </View>
+                        </Pressable>
+                    );
+                })}
+            </View>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+
+    contentContainer: {
         padding: 16,
+        paddingBottom: 40,
     },
 
     title: {
-        fontSize: 24,
+        fontSize: 22,
         fontWeight: '800',
+    },
+
+    sectionMarginTop: {
+        marginTop: 28,
     },
 
     subtitle: {
         fontSize: 13,
         marginTop: 4,
-        marginBottom: 20,
+        marginBottom: 16,
         lineHeight: 18,
     },
 
@@ -220,3 +349,4 @@ const styles = StyleSheet.create({
         borderRadius: 6,
     },
 });
+
