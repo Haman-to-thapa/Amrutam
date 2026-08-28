@@ -22,7 +22,7 @@ import { EmptyState } from '@/components/feedback/EmptyState';
 import { LoadingState } from '@/components/feedback/LoadingState';
 import type { ShopStackParamList } from '@/app/navigation/ShopNavigator';
 import type { CartItem, Product } from '../types/shop.types';
-import { CartItemCard } from '../components/CartItemCard';
+import { CartItemRow } from '../components/CartItemRow';
 
 export function CartScreen() {
     const dispatch = useAppDispatch();
@@ -60,7 +60,7 @@ export function CartScreen() {
 
     const renderItem = useCallback(
         ({ item }: { item: CartItem }) => (
-            <CartItemCard
+            <CartItemRow
                 item={item}
                 onPress={handleProductPress}
             />
@@ -73,7 +73,6 @@ export function CartScreen() {
     }
 
     if (cartItems.length === 0) {
-
         return (
             <View style={styles.emptyContainer}>
                 <EmptyState
@@ -128,6 +127,7 @@ export function CartScreen() {
                 <Pressable
                     accessibilityRole="button"
                     accessibilityLabel="Proceed to checkout"
+                    onPress={() => navigation.navigate('Checkout')}
                     style={styles.checkoutButton}>
                     <Text style={styles.checkoutButtonText}>Proceed to Checkout →</Text>
                 </Pressable>
@@ -135,6 +135,7 @@ export function CartScreen() {
         </View>
     );
 }
+
 
 const styles = StyleSheet.create({
     container: {

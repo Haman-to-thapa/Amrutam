@@ -99,10 +99,39 @@ export const shopApi = baseApi.injectEndpoints({
                 },
             ],
         }),
+
+        getProductsByIds: builder.query<Product[], string[]>({
+            async queryFn(productIds) {
+                try {
+                    const products = await Promise.all(
+                        productIds.map(id => getProductById(id)),
+                    );
+
+                    return {
+                        data: products,
+                    };
+                } catch {
+                    return {
+                        error: {
+                            code: 'UNKNOWN',
+                            message: 'Unable to load cart products.',
+                        },
+                    };
+                }
+            },
+
+            providesTags: (_result, _error, productIds) =>
+                productIds.map(productId => ({
+                    type: 'Product' as const,
+                    id: productId,
+                })),
+        }),
     }),
 });
 
 export const {
     useGetProductsQuery,
     useGetProductByIdQuery,
-} = shopApi;
+    useGetProductsByIdsQuery,
+} = shopApi;
+
