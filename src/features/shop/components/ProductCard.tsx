@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 
 import type { Product } from '../types/shop.types';
+import { WishlistButton } from './WishlistButton';
 
 type Props = {
     product: Product;
@@ -21,10 +22,12 @@ function ProductCardComponent({ product, onPress }: Props) {
             accessibilityLabel={`View ${product.name}`}
             onPress={() => onPress?.(product)}
             style={styles.card}>
-            <Image
-                source={{ uri: product.thumbnailUrl }}
-                style={styles.image}
-            />
+            <View style={styles.imageContainer}>
+                <Image
+                    source={{ uri: product.thumbnailUrl }}
+                    style={styles.image}
+                />
+            </View>
 
             <View style={styles.content}>
                 <Text
@@ -51,9 +54,14 @@ function ProductCardComponent({ product, onPress }: Props) {
                     </Text>
                 ) : null}
             </View>
+
+            <View style={styles.wishlistWrapper}>
+                <WishlistButton product={product} />
+            </View>
         </Pressable>
     );
 }
+
 
 
 export const ProductCard = memo(
@@ -110,4 +118,13 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: '600',
     },
-});
+
+    imageContainer: {
+        position: 'relative',
+    },
+
+    wishlistWrapper: {
+        justifyContent: 'center',
+        paddingLeft: 8,
+    },
+});

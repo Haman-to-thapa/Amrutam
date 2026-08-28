@@ -17,6 +17,8 @@ import { LoadingState } from '@/components/feedback/LoadingState';
 
 import type { ShopStackParamList } from '@/app/navigation/ShopNavigator';
 import { useProductDetails } from '../hooks/useProductDetails';
+import { WishlistButton } from '../components/WishlistButton';
+
 
 type ProductDetailsRouteProp = RouteProp<
     ShopStackParamList,
@@ -97,8 +99,12 @@ export function ProductDetailsScreen() {
                         <Text style={styles.categoryText}>{product.category}</Text>
                     </View>
 
-                    {/* Product Name */}
-                    <Text style={styles.name}>{product.name}</Text>
+                    {/* Product Name & Wishlist Button */}
+                    <View style={styles.titleRow}>
+                        <Text style={styles.name}>{product.name}</Text>
+                        <WishlistButton product={product} />
+                    </View>
+
 
                     {/* Rating & Reviews */}
                     <View style={styles.ratingRow}>
@@ -253,12 +259,21 @@ const styles = StyleSheet.create({
         color: '#1b5e20',
     },
 
+    titleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 12,
+    },
+
     name: {
+        flex: 1,
         fontSize: 22,
         fontWeight: '800',
         color: '#111827',
         lineHeight: 28,
     },
+
 
     ratingRow: {
         flexDirection: 'row',

@@ -3,6 +3,7 @@ import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { ReduxProvider } from './ReduxProvider';
+import { PersistenceBridge } from './PersistenceBridge';
 import { Toast } from '@/components/feedback/Toast';
 
 export function AppProviders({ children }: PropsWithChildren) {
@@ -10,10 +11,13 @@ export function AppProviders({ children }: PropsWithChildren) {
         <SafeAreaProvider>
             <StatusBar barStyle="dark-content" />
             <ReduxProvider>
-                {children}
-                <Toast />
+                <PersistenceBridge>
+                    {children}
+                    <Toast />
+                </PersistenceBridge>
             </ReduxProvider>
         </SafeAreaProvider>
     );
 }
+
 

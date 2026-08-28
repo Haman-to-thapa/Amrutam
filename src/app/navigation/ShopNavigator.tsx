@@ -5,12 +5,14 @@ import {
 
 import { ProductListScreen } from '@/features/shop/screens/ProductListScreen';
 import { ProductDetailsScreen } from '@/features/shop/screens/ProductDetailsScreen';
+import { WishlistScreen } from '@/features/shop/screens/WishlistScreen';
 
 export type ShopStackParamList = {
     Products: undefined;
     ProductDetails: {
         productId: string;
     };
+    Wishlist: undefined;
 };
 
 const Stack =
@@ -40,7 +42,13 @@ export function ShopNavigator() {
                 component={ProductDetailsScreen}
                 options={{ title: 'Product Details' }}
             />
+            <Stack.Screen
+                name="Wishlist"
+                component={WishlistScreen}
+                options={{ title: 'My Wishlist' }}
+            />
         </Stack.Navigator>
     );
 }
+
 
