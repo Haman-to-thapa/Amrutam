@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
     Image,
     Pressable,
@@ -11,6 +11,9 @@ import type { RouteProp } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useAppDispatch } from '@/store/hooks';
+import { addToCart } from '@/store/slices/cartSlice';
+import { showToast } from '@/store/slices/toastSlice';
 import { EmptyState } from '@/components/feedback/EmptyState';
 import { ErrorState } from '@/components/feedback/ErrorState';
 import { LoadingState } from '@/components/feedback/LoadingState';
@@ -19,13 +22,13 @@ import type { ShopStackParamList } from '@/app/navigation/ShopNavigator';
 import { useProductDetails } from '../hooks/useProductDetails';
 import { WishlistButton } from '../components/WishlistButton';
 
-
 type ProductDetailsRouteProp = RouteProp<
     ShopStackParamList,
     'ProductDetails'
 >;
 
 export function ProductDetailsScreen() {
+    const dispatch = useAppDispatch();
     const insets = useSafeAreaInsets();
     const route = useRoute<ProductDetailsRouteProp>();
     const { productId } = route.params;
@@ -37,6 +40,34 @@ export function ProductDetailsScreen() {
         error,
         refetch,
     } = useProductDetails(productId);
+
+    const handleAddToCart = useCallback(() => {
+        if (!product || !product.inStock || product.stockQuantity <= 0) {
+            dispatch(
+                showToast({
+                    type: 'warning',
+                    message: 'This product is out of stock.',
+                }),
+            );
+            return;
+        }
+
+        dispatch(
+            addToCart({
+                productId: product.id,
+                quantity: 1,
+                addedAt: new Date().toISOString(),
+            }),
+        );
+
+        dispatch(
+            showToast({
+                type: 'success',
+                message: `Added ${product.name} to cart.`,
+            }),
+        );
+    }, [dispatch, product]);
+
 
     if (isLoading) {
         return <LoadingState />;
@@ -186,6 +217,7 @@ export function ProductDetailsScreen() {
                         product.inStock ? 'Add product to cart' : 'Product out of stock'
                     }
                     disabled={!product.inStock}
+                    onPress={handleAddToCart}
                     style={[
                         styles.cartButton,
                         !product.inStock && styles.disabledCartButton,
@@ -194,6 +226,7 @@ export function ProductDetailsScreen() {
                         {product.inStock ? '🛍️ Add to Cart' : 'Out of Stock'}
                     </Text>
                 </Pressable>
+
             </View>
         </View>
     );

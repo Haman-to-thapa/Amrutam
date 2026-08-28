@@ -25,6 +25,7 @@ import type { ShopStackParamList } from '@/app/navigation/ShopNavigator';
 
 import { useAppSelector } from '@/store/hooks';
 import { selectWishlistItems } from '@/store/selectors/wishlistSelectors';
+import { selectCartItemCount } from '@/store/selectors/cartSelectors';
 
 import { ProductAdvancedFilters } from '../components/ProductAdvancedFilters';
 import { ProductCard } from '../components/ProductCard';
@@ -43,6 +44,8 @@ export function ProductListScreen() {
     const navigation =
         useNavigation<NativeStackNavigationProp<ShopStackParamList, 'Products'>>();
     const wishlistItems = useAppSelector(selectWishlistItems);
+    const cartCount = useAppSelector(selectCartItemCount);
+
 
 
     const [page, setPage] = useState(1);
@@ -239,21 +242,38 @@ export function ProductListScreen() {
                             Authentic Wellness Formulations
                         </Text>
                     </View>
-                    <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel="Open wishlist"
-                        onPress={() => navigation.navigate('Wishlist')}
-                        style={styles.headerWishlistButton}>
-                        <Text style={styles.headerWishlistIcon}>♥</Text>
-                        {wishlistItems.length > 0 ? (
-                            <View style={styles.headerWishlistBadge}>
-                                <Text style={styles.headerWishlistBadgeText}>
-                                    {wishlistItems.length}
-                                </Text>
-                            </View>
-                        ) : null}
-                    </Pressable>
+                    <View style={styles.headerActions}>
+                        <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel="Open wishlist"
+                            onPress={() => navigation.navigate('Wishlist')}
+                            style={styles.headerWishlistButton}>
+                            <Text style={styles.headerWishlistIcon}>♥</Text>
+                            {wishlistItems.length > 0 ? (
+                                <View style={styles.headerWishlistBadge}>
+                                    <Text style={styles.headerWishlistBadgeText}>
+                                        {wishlistItems.length}
+                                    </Text>
+                                </View>
+                            ) : null}
+                        </Pressable>
+                        <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel="Open cart"
+                            onPress={() => navigation.navigate('Cart')}
+                            style={styles.headerCartButton}>
+                            <Text style={styles.headerCartIcon}>🛍️</Text>
+                            {cartCount > 0 ? (
+                                <View style={styles.headerCartBadge}>
+                                    <Text style={styles.headerCartBadgeText}>
+                                        {cartCount}
+                                    </Text>
+                                </View>
+                            ) : null}
+                        </Pressable>
+                    </View>
                 </View>
+
 
                 {/* Search + Filter Button Row */}
                 <View style={styles.searchRow}>
@@ -415,10 +435,16 @@ const styles = StyleSheet.create({
         marginTop: 2,
     },
 
+    headerActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+
     headerWishlistButton: {
-        width: 42,
-        height: 42,
-        borderRadius: 21,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
         backgroundColor: '#fef2f2',
         borderWidth: 1,
         borderColor: '#fee2e2',
@@ -428,7 +454,7 @@ const styles = StyleSheet.create({
     },
 
     headerWishlistIcon: {
-        fontSize: 20,
+        fontSize: 18,
         color: '#dc2626',
     },
 
@@ -450,6 +476,42 @@ const styles = StyleSheet.create({
         fontSize: 10,
         fontWeight: '700',
     },
+
+    headerCartButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: '#e8f5e9',
+        borderWidth: 1,
+        borderColor: '#c8e6c9',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+    },
+
+    headerCartIcon: {
+        fontSize: 16,
+    },
+
+    headerCartBadge: {
+        position: 'absolute',
+        top: -4,
+        right: -4,
+        backgroundColor: '#1f6f43',
+        borderRadius: 9,
+        minWidth: 18,
+        height: 18,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 4,
+    },
+
+    headerCartBadgeText: {
+        color: '#ffffff',
+        fontSize: 10,
+        fontWeight: '700',
+    },
+
 
 
     searchRow: {

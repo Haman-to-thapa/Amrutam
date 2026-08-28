@@ -6,6 +6,7 @@ import {
 import { ProductListScreen } from '@/features/shop/screens/ProductListScreen';
 import { ProductDetailsScreen } from '@/features/shop/screens/ProductDetailsScreen';
 import { WishlistScreen } from '@/features/shop/screens/WishlistScreen';
+import { CartScreen } from '@/features/shop/screens/CartScreen';
 
 export type ShopStackParamList = {
     Products: undefined;
@@ -13,6 +14,7 @@ export type ShopStackParamList = {
         productId: string;
     };
     Wishlist: undefined;
+    Cart: undefined;
 };
 
 const Stack =
@@ -47,8 +49,14 @@ export function ShopNavigator() {
                 component={WishlistScreen}
                 options={{ title: 'My Wishlist' }}
             />
+            <Stack.Screen
+                name="Cart"
+                component={CartScreen}
+                options={{ title: 'Shopping Cart' }}
+            />
         </Stack.Navigator>
     );
 }
+
 
 

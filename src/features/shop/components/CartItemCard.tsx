@@ -7,59 +7,59 @@ import {
     Text,
     View,
 } from 'react-native';
+
 import { useAppDispatch } from '@/store/hooks';
-import { addToCart } from '@/store/slices/cartSlice';
-import { removeFromWishlist } from '@/store/slices/wishlistSlice';
+import {
+    decreaseQuantity,
+    increaseQuantity,
+    removeFromCart,
+} from '@/store/slices/cartSlice';
 import { showToast } from '@/store/slices/toastSlice';
 import { useProductDetails } from '../hooks/useProductDetails';
-import type { Product } from '../types/shop.types';
+import type { CartItem, Product } from '../types/shop.types';
 
 type Props = {
-    productId: string;
+    item: CartItem;
     onPress?: (product: Product) => void;
 };
 
-function WishlistItemCardComponent({ productId, onPress }: Props) {
+function CartItemCardComponent({ item, onPress }: Props) {
     const dispatch = useAppDispatch();
-    const { data: product, isLoading, isError } = useProductDetails(productId);
+    const { data: product, isLoading, isError } = useProductDetails(item.productId);
 
-    const handleRemove = useCallback(() => {
-        dispatch(removeFromWishlist(productId));
-    }, [dispatch, productId]);
-
-    const handleAddToCart = useCallback(() => {
-        if (!product || !product.inStock || product.stockQuantity <= 0) {
+    const handleIncrease = useCallback(() => {
+        if (product && item.quantity >= product.stockQuantity) {
             dispatch(
                 showToast({
                     type: 'warning',
-                    message: 'This product is out of stock.',
+                    message: `Only ${product.stockQuantity} items in stock.`,
                 }),
             );
             return;
         }
 
-        dispatch(
-            addToCart({
-                productId: product.id,
-                quantity: 1,
-                addedAt: new Date().toISOString(),
-            }),
-        );
+        dispatch(increaseQuantity(item.productId));
+    }, [dispatch, item.productId, item.quantity, product]);
 
+    const handleDecrease = useCallback(() => {
+        dispatch(decreaseQuantity(item.productId));
+    }, [dispatch, item.productId]);
+
+    const handleRemove = useCallback(() => {
+        dispatch(removeFromCart(item.productId));
         dispatch(
             showToast({
-                type: 'success',
-                message: `Added ${product.name} to cart.`,
+                type: 'info',
+                message: 'Item removed from cart.',
             }),
         );
-    }, [dispatch, product]);
-
+    }, [dispatch, item.productId]);
 
     if (isLoading) {
         return (
             <View style={[styles.card, styles.loadingCard]}>
                 <ActivityIndicator size="small" color="#1f6f43" />
-                <Text style={styles.loadingText}>Loading item details...</Text>
+                <Text style={styles.loadingText}>Loading item...</Text>
             </View>
         );
     }
@@ -78,40 +78,30 @@ function WishlistItemCardComponent({ productId, onPress }: Props) {
         );
     }
 
-    const discount =
-        product.originalPrice && product.originalPrice > product.price
-            ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
-            : 0;
-
     return (
         <Pressable
             accessibilityRole="button"
             accessibilityLabel={`View ${product.name}`}
             onPress={() => onPress?.(product)}
             style={styles.card}>
-            {/* Thumbnail */}
+            {/* Image */}
             <View style={styles.imageContainer}>
                 <Image
                     source={{ uri: product.thumbnailUrl }}
                     style={styles.image}
                 />
-                {!product.inStock ? (
-                    <View style={styles.outOfStockBadge}>
-                        <Text style={styles.outOfStockText}>Out of stock</Text>
-                    </View>
-                ) : null}
             </View>
 
-            {/* Content */}
-            <View style={styles.content}>
-                <View style={styles.topRow}>
+            {/* Details */}
+            <View style={styles.details}>
+                <View style={styles.headerRow}>
                     <Text style={styles.category}>{product.category}</Text>
                     <Pressable
                         accessibilityRole="button"
-                        accessibilityLabel="Remove from wishlist"
+                        accessibilityLabel="Remove item"
                         onPress={handleRemove}
-                        style={styles.heartButton}>
-                        <Text style={styles.heartIcon}>♥</Text>
+                        style={styles.deleteButton}>
+                        <Text style={styles.deleteIcon}>✕</Text>
                     </Pressable>
                 </View>
 
@@ -119,44 +109,45 @@ function WishlistItemCardComponent({ productId, onPress }: Props) {
                     {product.name}
                 </Text>
 
-                <Text style={styles.rating}>
-                    ⭐ {product.rating} ({product.reviewCount})
-                </Text>
-
                 <View style={styles.priceRow}>
-                    <Text style={styles.price}>₹{product.price}</Text>
-                    {product.originalPrice ? (
-                        <Text style={styles.originalPrice}>₹{product.originalPrice}</Text>
-                    ) : null}
-                    {discount > 0 ? (
-                        <Text style={styles.discountText}>{discount}% OFF</Text>
-                    ) : null}
+                    <Text style={styles.unitPrice}>₹{product.price}</Text>
+                    <Text style={styles.totalPrice}>
+                        Subtotal: ₹{product.price * item.quantity}
+                    </Text>
                 </View>
 
-                {/* Add to Cart Button */}
-                <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={
-                        product.inStock ? 'Add product to cart' : 'Product out of stock'
-                    }
-                    disabled={!product.inStock}
-                    onPress={handleAddToCart}
-                    style={[
-                        styles.cartButton,
-                        !product.inStock && styles.disabledCartButton,
-                    ]}>
-                    <Text style={styles.cartButtonText}>
-                        {product.inStock ? '🛍️ Add to Cart' : 'Out of Stock'}
-                    </Text>
-                </Pressable>
+                {/* Quantity Stepper */}
+                <View style={styles.stepperContainer}>
+                    <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel="Decrease quantity"
+                        onPress={handleDecrease}
+                        style={styles.stepperButton}>
+                        <Text style={styles.stepperButtonText}>−</Text>
+                    </Pressable>
 
+                    <Text style={styles.quantityText}>{item.quantity}</Text>
+
+                    <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel="Increase quantity"
+                        onPress={handleIncrease}
+                        disabled={product.stockQuantity <= item.quantity}
+                        style={[
+                            styles.stepperButton,
+                            product.stockQuantity <= item.quantity &&
+                            styles.disabledStepperButton,
+                        ]}>
+                        <Text style={styles.stepperButtonText}>+</Text>
+                    </Pressable>
+                </View>
             </View>
         </Pressable>
     );
 }
 
-export const WishlistItemCard = memo(
-    WishlistItemCardComponent,
+export const CartItemCard = memo(
+    CartItemCardComponent,
 );
 
 const styles = StyleSheet.create({
@@ -214,9 +205,8 @@ const styles = StyleSheet.create({
     },
 
     imageContainer: {
-        position: 'relative',
-        width: 96,
-        height: 96,
+        width: 88,
+        height: 88,
         borderRadius: 10,
         overflow: 'hidden',
         backgroundColor: '#f3f4f6',
@@ -227,29 +217,13 @@ const styles = StyleSheet.create({
         height: '100%',
     },
 
-    outOfStockBadge: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: 'rgba(185, 28, 28, 0.85)',
-        paddingVertical: 2,
-        alignItems: 'center',
-    },
-
-    outOfStockText: {
-        color: '#ffffff',
-        fontSize: 9,
-        fontWeight: '700',
-    },
-
-    content: {
+    details: {
         flex: 1,
         marginLeft: 12,
         justifyContent: 'space-between',
     },
 
-    topRow: {
+    headerRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -262,19 +236,19 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase',
     },
 
-    heartButton: {
-        width: 28,
-        height: 28,
-        borderRadius: 14,
-        backgroundColor: '#fee2e2',
+    deleteButton: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        backgroundColor: '#f3f4f6',
         alignItems: 'center',
         justifyContent: 'center',
     },
 
-    heartIcon: {
-        fontSize: 15,
-        color: '#dc2626',
-        lineHeight: 17,
+    deleteIcon: {
+        fontSize: 11,
+        color: '#6b7280',
+        fontWeight: '800',
     },
 
     name: {
@@ -284,53 +258,63 @@ const styles = StyleSheet.create({
         marginTop: 2,
     },
 
-    rating: {
-        fontSize: 11,
-        color: '#4b5563',
-        marginTop: 2,
-    },
-
     priceRow: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'space-between',
         marginTop: 4,
-        gap: 6,
     },
 
-    price: {
-        fontSize: 15,
-        fontWeight: '800',
+    unitPrice: {
+        fontSize: 14,
+        color: '#6b7280',
+    },
+
+    totalPrice: {
+        fontSize: 14,
+        fontWeight: '700',
         color: '#111827',
     },
 
-    originalPrice: {
-        fontSize: 12,
-        color: '#9ca3af',
-        textDecorationLine: 'line-through',
-    },
-
-    discountText: {
-        fontSize: 11,
-        fontWeight: '700',
-        color: '#dc2626',
-    },
-
-    cartButton: {
+    stepperContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        alignSelf: 'flex-start',
+        backgroundColor: '#f3f4f6',
+        borderRadius: 8,
+        padding: 2,
         marginTop: 8,
-        height: 34,
+    },
+
+    stepperButton: {
+        width: 28,
+        height: 28,
+        borderRadius: 6,
+        backgroundColor: '#ffffff',
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: 8,
-        backgroundColor: '#1f6f43',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 1,
+        elevation: 1,
     },
 
-    disabledCartButton: {
-        backgroundColor: '#9ca3af',
+    disabledStepperButton: {
+        opacity: 0.4,
     },
 
-    cartButtonText: {
-        color: '#ffffff',
-        fontSize: 12,
+    stepperButtonText: {
+        fontSize: 16,
         fontWeight: '700',
+        color: '#111827',
+        lineHeight: 18,
+    },
+
+    quantityText: {
+        paddingHorizontal: 12,
+        fontSize: 13,
+        fontWeight: '700',
+        color: '#111827',
     },
 });
