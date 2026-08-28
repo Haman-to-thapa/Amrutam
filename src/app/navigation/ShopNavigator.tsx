@@ -4,9 +4,13 @@ import {
 } from '@react-navigation/native-stack';
 
 import { ProductListScreen } from '@/features/shop/screens/ProductListScreen';
+import { ProductDetailsScreen } from '@/features/shop/screens/ProductDetailsScreen';
 
 export type ShopStackParamList = {
     Products: undefined;
+    ProductDetails: {
+        productId: string;
+    };
 };
 
 const Stack =
@@ -31,6 +35,12 @@ export function ShopNavigator() {
                 component={ProductListScreen}
                 options={{ title: 'Shop' }}
             />
+            <Stack.Screen
+                name="ProductDetails"
+                component={ProductDetailsScreen}
+                options={{ title: 'Product Details' }}
+            />
         </Stack.Navigator>
     );
-}
+}
+

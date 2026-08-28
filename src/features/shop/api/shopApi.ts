@@ -1,6 +1,9 @@
 import { baseApi } from '@/core/api/baseApi';
 import type { PaginatedResponse } from '@/core/api/api.types';
-import { getProducts } from '@/mocks/repositories';
+import {
+    getProductById,
+    getProducts,
+} from '@/mocks/repositories';
 
 import type {
     Product,
@@ -37,7 +40,6 @@ export const shopApi = baseApi.injectEndpoints({
                 }
             },
 
-
             providesTags: result =>
                 result
                     ? [
@@ -57,9 +59,50 @@ export const shopApi = baseApi.injectEndpoints({
                         },
                     ],
         }),
+
+        getProductById: builder.query<Product, string>({
+            async queryFn(productId) {
+                try {
+                    const product = await getProductById(productId);
+
+                    return {
+                        data: product,
+                    };
+                } catch (error) {
+                    const message =
+                        error instanceof Error
+                            ? error.message
+                            : 'Unable to load product.';
+
+                    if (message === 'PRODUCT_NOT_FOUND') {
+                        return {
+                            error: {
+                                code: 'NOT_FOUND',
+                                message: 'Product could not be found.',
+                            },
+                        };
+                    }
+
+                    return {
+                        error: {
+                            code: 'UNKNOWN',
+                            message: 'Unable to load product.',
+                        },
+                    };
+                }
+            },
+
+            providesTags: (_result, _error, productId) => [
+                {
+                    type: 'Product' as const,
+                    id: productId,
+                },
+            ],
+        }),
     }),
 });
 
 export const {
     useGetProductsQuery,
-} = shopApi;
+    useGetProductByIdQuery,
+} = shopApi;

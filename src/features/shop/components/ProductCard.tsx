@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import {
     Image,
+    Pressable,
     StyleSheet,
     Text,
     View,
@@ -10,11 +11,16 @@ import type { Product } from '../types/shop.types';
 
 type Props = {
     product: Product;
+    onPress?: (product: Product) => void;
 };
 
-function ProductCardComponent({ product }: Props) {
+function ProductCardComponent({ product, onPress }: Props) {
     return (
-        <View style={styles.card}>
+        <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`View ${product.name}`}
+            onPress={() => onPress?.(product)}
+            style={styles.card}>
             <Image
                 source={{ uri: product.thumbnailUrl }}
                 style={styles.image}
@@ -45,9 +51,10 @@ function ProductCardComponent({ product }: Props) {
                     </Text>
                 ) : null}
             </View>
-        </View>
+        </Pressable>
     );
 }
+
 
 export const ProductCard = memo(
     ProductCardComponent,
