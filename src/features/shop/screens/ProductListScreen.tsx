@@ -16,6 +16,7 @@ import { FlashList } from '@shopify/flash-list';
 import { EmptyState } from '@/components/feedback/EmptyState';
 import { ErrorState } from '@/components/feedback/ErrorState';
 import { LoadingState } from '@/components/feedback/LoadingState';
+import { OfflineDataNotice } from '@/components/feedback/OfflineDataNotice';
 import { Input } from '@/components/ui/Input';
 import { useDebounce } from '@/core/utils/useDebounce';
 
@@ -234,6 +235,8 @@ export function ProductListScreen() {
 
     return (
         <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+            <OfflineDataNotice message="Showing cached catalog. Connect to internet for live stock updates." />
+            {/* Top Surface Header */}
             <View style={[styles.header, { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.border }]}>
                 <View style={styles.titleRow}>
                     <View style={styles.titleTextContainer}>

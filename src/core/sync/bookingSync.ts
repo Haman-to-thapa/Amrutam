@@ -27,18 +27,28 @@ function isRetryableError(
     ].includes(error.message);
 }
 
-export async function syncBookingQueue(): Promise<void> {
+export type BookingSyncResult = {
+    synced: number;
+    failed: number;
+    conflicts: number;
+};
+
+export async function syncBookingQueue(): Promise<BookingSyncResult> {
     const queue = loadBookingQueue();
 
     if (queue.length === 0) {
-        return;
+        return { synced: 0, failed: 0, conflicts: 0 };
     }
 
+    let synced = 0;
+    let failed = 0;
+    let conflicts = 0;
     const updatedQueue: BookingQueueItem[] = [];
 
     for (const item of queue) {
         if (item.status === 'conflict') {
             updatedQueue.push(item);
+            conflicts += 1;
             continue;
         }
 
@@ -55,6 +65,7 @@ export async function syncBookingQueue(): Promise<void> {
 
             // Successfully synchronized:
             // Do not keep it in the pending queue.
+            synced += 1;
         } catch (error) {
             const message =
                 error instanceof Error
@@ -68,6 +79,7 @@ export async function syncBookingQueue(): Promise<void> {
                     lastError: message,
                     updatedAt: new Date().toISOString(),
                 });
+                conflicts += 1;
 
                 continue;
             }
@@ -79,8 +91,16 @@ export async function syncBookingQueue(): Promise<void> {
                 lastError: message,
                 updatedAt: new Date().toISOString(),
             });
+            failed += 1;
         }
     }
 
     saveBookingQueue(updatedQueue);
+
+    return {
+        synced,
+        failed,
+        conflicts,
+    };
 }
+

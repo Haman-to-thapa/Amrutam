@@ -13,6 +13,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { DoctorCard } from '../components/DoctorCard';
 import { DoctorFilters } from '../components/DoctorFilters';
+import { OfflineDataNotice } from '@/components/feedback/OfflineDataNotice';
 import { useDoctors } from '../hooks/useDoctors';
 import type {
     Doctor,
@@ -65,6 +66,7 @@ export function DoctorListScreen() {
         <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
             <View style={styles.header}>
                 <Text style={[styles.title, { color: theme.colors.text }]}>Ayurvedic Doctors</Text>
+                <OfflineDataNotice message="Showing cached doctors list. Connect to internet for live updates." />
 
                 <Input
                     value={search}

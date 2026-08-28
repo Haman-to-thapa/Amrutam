@@ -16,6 +16,7 @@ import { useDebounce } from '@/core/utils/useDebounce';
 import { EmptyState } from '@/components/feedback/EmptyState';
 import { ErrorState } from '@/components/feedback/ErrorState';
 import { LoadingState } from '@/components/feedback/LoadingState';
+import { OfflineDataNotice } from '@/components/feedback/OfflineDataNotice';
 
 import type { HealthRecordsStackParamList } from '@/app/navigation/HealthRecordsNavigator';
 import { useHealthRecords } from '../hooks/useHealthRecords';
@@ -178,6 +179,7 @@ export function HealthRecordsScreen() {
 
     return (
         <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+            <OfflineDataNotice message="Showing cached medical timeline. Connect to internet for live record synchronization." />
             {/* Top Search & Filter Container (Sticky & Outside SectionList to prevent focus loss) */}
             <View style={[styles.header, { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.border }]}>
                 <View style={styles.titleRow}>

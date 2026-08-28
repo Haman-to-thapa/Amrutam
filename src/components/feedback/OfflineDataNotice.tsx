@@ -1,65 +1,75 @@
-import React from 'react';
+import React, { memo } from 'react';
 import {
     StyleSheet,
     Text,
     View,
 } from 'react-native';
+import { useAppSelector } from '@/store/hooks';
+import { selectIsOffline } from '@/store/selectors/networkSelectors';
 import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 type Props = {
-    visible: boolean;
+    visible?: boolean;
+    message?: string;
 };
 
-export function OfflineDataNotice({
+function OfflineDataNoticeComponent({
     visible,
+    message = 'Showing offline cached data. Some information may be outdated.',
 }: Props) {
     const { theme } = useAppTheme();
+    const isOffline = useAppSelector(selectIsOffline);
 
-    if (!visible) {
+    const showNotice = visible !== undefined ? visible : isOffline;
+
+    if (!showNotice) {
         return null;
     }
 
     return (
         <View
+            accessibilityRole="status"
             style={[
                 styles.container,
                 {
-                    backgroundColor: theme.mode === 'dark' ? '#3d2800' : '#fef3c7',
-                    borderBottomColor: theme.mode === 'dark' ? '#5a3d00' : '#fde68a',
+                    backgroundColor: theme.mode === 'dark' ? '#2a2215' : '#fef9c3',
+                    borderBottomColor: theme.mode === 'dark' ? '#44351b' : '#fef08a',
                 },
             ]}>
-            <Text style={styles.icon}>📡</Text>
+            <Text style={styles.icon}>📋</Text>
             <Text
                 style={[
                     styles.text,
                     {
-                        color: theme.mode === 'dark' ? '#fcd34d' : '#92400e',
+                        color: theme.mode === 'dark' ? '#fde047' : '#854d0e',
                     },
                 ]}>
-                Showing offline cached data. Some information may be outdated.
+                {message}
             </Text>
         </View>
     );
 }
 
+export const OfflineDataNotice = memo(OfflineDataNoticeComponent);
+
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
         paddingHorizontal: 16,
-        paddingVertical: 8,
+        paddingVertical: 7,
         borderBottomWidth: 1,
     },
 
     icon: {
-        fontSize: 14,
-        marginRight: 8,
+        fontSize: 12,
+        marginRight: 6,
     },
 
     text: {
-        flex: 1,
-        fontSize: 12,
+        fontSize: 11,
         fontWeight: '600',
+        textAlign: 'center',
     },
 });
-

@@ -2,12 +2,14 @@ import {
     subscribeToNetworkStatus,
 } from '@/core/network/network';
 
-import { syncBookingQueue } from './bookingSync';
+import { syncBookingQueue, type BookingSyncResult } from './bookingSync';
 
 let unsubscribe: (() => void) | null = null;
 let syncing = false;
 
-export function startBookingSyncManager(): () => void {
+export function startBookingSyncManager(
+    onSyncComplete?: (result: BookingSyncResult) => void,
+): () => void {
     if (unsubscribe) {
         return () => {
             unsubscribe?.();
@@ -29,6 +31,9 @@ export function startBookingSyncManager(): () => void {
         syncing = true;
 
         syncBookingQueue()
+            .then(result => {
+                onSyncComplete?.(result);
+            })
             .catch(() => {
                 // Keep the queue intact.
             })
@@ -42,3 +47,4 @@ export function startBookingSyncManager(): () => void {
         unsubscribe = null;
     };
 }
+

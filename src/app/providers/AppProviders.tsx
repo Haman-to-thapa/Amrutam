@@ -6,6 +6,7 @@ import { ReduxProvider } from './ReduxProvider';
 import { ThemeProvider } from './ThemeProvider';
 import { PersistenceBridge } from './PersistenceBridge';
 import { SyncBridge } from './SyncBridge';
+import { NetworkBridge } from './NetworkBridge';
 import { Toast } from '@/components/feedback/Toast';
 
 export function AppProviders({ children }: PropsWithChildren) {
@@ -14,6 +15,7 @@ export function AppProviders({ children }: PropsWithChildren) {
             <ReduxProvider>
                 <ThemeProvider>
                     <PersistenceBridge>
+                        <NetworkBridge />
                         <SyncBridge />
                         {children}
                         <Toast />
@@ -23,6 +25,7 @@ export function AppProviders({ children }: PropsWithChildren) {
         </SafeAreaProvider>
     );
 }
+
 
 
 
