@@ -258,6 +258,7 @@ export function ProductListScreen() {
                     </View>
                     <View style={styles.headerActions}>
                         <Pressable
+                            testID="open-wishlist-button"
                             accessibilityRole="button"
                             accessibilityLabel="Open wishlist"
                             onPress={() => navigation.navigate('Wishlist')}
@@ -272,6 +273,7 @@ export function ProductListScreen() {
                             ) : null}
                         </Pressable>
                         <Pressable
+                            testID="open-cart-button"
                             accessibilityRole="button"
                             accessibilityLabel="Open cart"
                             onPress={() => navigation.navigate('Cart')}

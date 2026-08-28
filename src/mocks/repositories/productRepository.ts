@@ -6,6 +6,7 @@ import type {
 import { mockDatabase } from '@/mocks/db/mockDatabase';
 import { mockTransport } from '@/mocks/transport/mockTransport';
 import { paginate } from './pagination';
+import { filterProducts } from '@/features/shop/utils/productFilters';
 
 export async function getProducts(
     params: ProductListParams,
@@ -16,58 +17,10 @@ export async function getProducts(
             path: '/products',
         },
         () => {
-            let products = [...mockDatabase.products];
-
-            if (params.search?.trim()) {
-                const query = params.search.trim().toLowerCase();
-
-                products = products.filter(product =>
-                    [
-                        product.name,
-                        product.description,
-                        product.category,
-                        ...product.tags,
-                    ]
-                        .join(' ')
-                        .toLowerCase()
-                        .includes(query),
-                );
-            }
-
-            if (params.filters?.categories?.length) {
-                const categories = params.filters.categories;
-
-                products = products.filter(product =>
-                    categories.includes(product.category),
-                );
-            }
-
-            if (params.filters?.minPrice !== undefined) {
-                products = products.filter(
-                    product =>
-                        product.price >= params.filters!.minPrice!,
-                );
-            }
-
-            if (params.filters?.maxPrice !== undefined) {
-                products = products.filter(
-                    product =>
-                        product.price <= params.filters!.maxPrice!,
-                );
-            }
-
-            if (params.filters?.minRating !== undefined) {
-                products = products.filter(
-                    product =>
-                        product.rating >= params.filters!.minRating!,
-                );
-            }
-
-            if (params.filters?.inStockOnly) {
-                products = products.filter(
-                    product => product.inStock,
-                );
-            }
+            let products = filterProducts(
+                mockDatabase.products,
+                params,
+            );
 
             switch (params.sort) {
                 case 'price_low_to_high':

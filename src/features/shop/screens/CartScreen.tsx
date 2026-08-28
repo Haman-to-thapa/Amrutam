@@ -129,6 +129,7 @@ export function CartScreen() {
                 </View>
 
                 <Pressable
+                    testID="continue-to-checkout-button"
                     accessibilityRole="button"
                     accessibilityLabel="Proceed to checkout"
                     onPress={() => navigation.navigate('Checkout')}

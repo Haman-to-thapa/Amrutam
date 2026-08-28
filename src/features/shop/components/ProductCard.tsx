@@ -27,6 +27,7 @@ function ProductCardComponent({ product, onPress }: Props) {
 
     return (
         <Pressable
+            testID={`product-${product.id}`}
             accessibilityRole="button"
             accessibilityLabel={`View ${product.name}`}
             onPress={() => onPress?.(product)}

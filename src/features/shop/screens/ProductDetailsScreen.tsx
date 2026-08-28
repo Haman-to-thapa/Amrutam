@@ -225,6 +225,7 @@ export function ProductDetailsScreen() {
                     <Text style={[styles.bottomPriceValue, { color: theme.colors.text }]}>₹{product.price}</Text>
                 </View>
                 <Pressable
+                    testID="add-to-cart-button"
                     accessibilityRole="button"
                     accessibilityLabel={
                         product.inStock ? t('shop.addToCart') : t('shop.outOfStock')

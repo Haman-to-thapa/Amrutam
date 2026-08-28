@@ -110,7 +110,7 @@ export function CheckoutSummaryScreen() {
     const grandTotal = subtotal + deliveryFee;
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <View testID="checkout-summary-container" style={[styles.container, { backgroundColor: theme.colors.background }]}>
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={[
@@ -206,6 +206,7 @@ export function CheckoutSummaryScreen() {
                 </View>
 
                 <Pressable
+                    testID="place-order-button"
                     accessibilityRole="button"
                     accessibilityLabel="Place order"
                     onPress={handlePlaceOrder}

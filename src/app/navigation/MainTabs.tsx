@@ -28,9 +28,8 @@ type TabIconProps = {
     emoji: string;
 };
 
-function TabIcon({ focused, emoji }: TabIconProps) {
-    const { theme } = useAppTheme();
-    const activeBg = theme.mode === 'dark' ? '#1f3d2b' : '#e8f5e9';
+function TabIcon({ focused, emoji, isDark }: TabIconProps & { isDark: boolean }) {
+    const activeBg = isDark ? '#1f3d2b' : '#e8f5e9';
 
     return (
         <View style={[styles.iconContainer, focused && { backgroundColor: activeBg }]}>
@@ -39,35 +38,52 @@ function TabIcon({ focused, emoji }: TabIconProps) {
     );
 }
 
-function ConsultationTabIcon({ focused }: { focused: boolean }) {
-    return <TabIcon focused={focused} emoji="🩺" />;
-}
-
-function ShopTabIcon({ focused }: { focused: boolean }) {
-    return <TabIcon focused={focused} emoji="🛍️" />;
-}
-
-function HealthRecordsTabIcon({ focused }: { focused: boolean }) {
-    return <TabIcon focused={focused} emoji="📋" />;
-}
-
-function SettingsTabIcon({ focused }: { focused: boolean }) {
-    return <TabIcon focused={focused} emoji="⚙️" />;
-}
-
 export function MainTabs() {
     const { t } = useTranslation();
     const insets = useSafeAreaInsets();
     const { theme } = useAppTheme();
+    const isDark = theme.mode === 'dark';
 
     // Android software 3-button navigation bar requires at least 34-40dp clearance
     const isAndroid = Platform.OS === 'android';
     const bottomPadding = Math.max(insets.bottom, isAndroid ? 36 : 20);
     const tabHeight = 66 + bottomPadding;
 
+    const renderConsultationIcon = React.useCallback(
+        ({ focused }: { focused: boolean }) => (
+            <TabIcon focused={focused} emoji="🩺" isDark={isDark} />
+        ),
+        [isDark],
+    );
+
+    const renderShopIcon = React.useCallback(
+        ({ focused }: { focused: boolean }) => (
+            <TabIcon focused={focused} emoji="🛍️" isDark={isDark} />
+        ),
+        [isDark],
+    );
+
+    const renderHealthRecordsIcon = React.useCallback(
+        ({ focused }: { focused: boolean }) => (
+            <TabIcon focused={focused} emoji="📋" isDark={isDark} />
+        ),
+        [isDark],
+    );
+
+    const renderSettingsIcon = React.useCallback(
+        ({ focused }: { focused: boolean }) => (
+            <TabIcon focused={focused} emoji="⚙️" isDark={isDark} />
+        ),
+        [isDark],
+    );
+
     return (
         <Tab.Navigator
+            detachInactiveScreens={true}
             screenOptions={{
+                freezeOnBlur: true,
+                lazy: true,
+                tabBarHideOnKeyboard: true,
                 tabBarActiveTintColor: theme.colors.primary,
                 tabBarInactiveTintColor: theme.colors.textSecondary,
                 tabBarLabelPosition: 'below-icon',
@@ -103,7 +119,7 @@ export function MainTabs() {
                 options={{
                     headerShown: false,
                     title: t('nav.consultation'),
-                    tabBarIcon: ConsultationTabIcon,
+                    tabBarIcon: renderConsultationIcon,
                 }}
             />
 
@@ -113,7 +129,7 @@ export function MainTabs() {
                 options={{
                     headerShown: false,
                     title: t('nav.shop'),
-                    tabBarIcon: ShopTabIcon,
+                    tabBarIcon: renderShopIcon,
                 }}
             />
 
@@ -123,7 +139,7 @@ export function MainTabs() {
                 options={{
                     headerShown: false,
                     title: t('nav.healthRecords'),
-                    tabBarIcon: HealthRecordsTabIcon,
+                    tabBarIcon: renderHealthRecordsIcon,
                 }}
             />
 
@@ -133,7 +149,7 @@ export function MainTabs() {
                 options={{
                     headerShown: false,
                     title: t('nav.settings'),
-                    tabBarIcon: SettingsTabIcon,
+                    tabBarIcon: renderSettingsIcon,
                 }}
             />
         </Tab.Navigator>
