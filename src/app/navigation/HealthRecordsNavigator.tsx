@@ -3,7 +3,7 @@ import {
     createNativeStackNavigator,
 } from '@react-navigation/native-stack';
 
-import { HealthRecordsPlaceholderScreen } from '@/features/health-records/screens/HealthRecordsPlaceholderScreen';
+import { HealthRecordsScreen } from '@/features/health-records/screens/HealthRecordsScreen';
 
 export type HealthRecordsStackParamList = {
     HealthRecords: undefined;
@@ -28,9 +28,9 @@ export function HealthRecordsNavigator() {
             }}>
             <Stack.Screen
                 name="HealthRecords"
-                component={HealthRecordsPlaceholderScreen}
+                component={HealthRecordsScreen}
                 options={{ title: 'Health Records' }}
             />
         </Stack.Navigator>
     );
-}
+}
