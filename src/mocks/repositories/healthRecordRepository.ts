@@ -49,6 +49,20 @@ export async function getHealthRecords(
                 );
             }
 
+            if (params.filters?.fromDate) {
+                const from = new Date(params.filters.fromDate).getTime();
+                records = records.filter(
+                    record => new Date(record.date).getTime() >= from,
+                );
+            }
+
+            if (params.filters?.toDate) {
+                const to = new Date(params.filters.toDate).getTime();
+                records = records.filter(
+                    record => new Date(record.date).getTime() <= to,
+                );
+            }
+
             return paginate(
                 records,
                 params.page,
@@ -57,3 +71,26 @@ export async function getHealthRecords(
         },
     );
 }
+
+export async function getHealthRecordById(
+    recordId: string,
+) {
+    return mockTransport(
+        {
+            method: 'GET',
+            path: `/health-records/${recordId}`,
+        },
+        () => {
+            const record = mockDatabase.healthRecords.find(
+                item => item.id === recordId,
+            );
+
+            if (!record) {
+                throw new Error('HEALTH_RECORD_NOT_FOUND');
+            }
+
+            return record;
+        },
+    ).then(response => response.data);
+}
+

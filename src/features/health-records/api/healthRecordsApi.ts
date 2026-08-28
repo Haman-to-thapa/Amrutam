@@ -1,6 +1,9 @@
 import { baseApi } from '@/core/api/baseApi';
 import type { PaginatedResponse } from '@/core/api/api.types';
-import { getHealthRecords } from '@/mocks/repositories';
+import {
+    getHealthRecordById,
+    getHealthRecords,
+} from '@/mocks/repositories';
 
 import type {
     HealthRecord,
@@ -56,9 +59,40 @@ export const healthRecordsApi = baseApi.injectEndpoints({
                         },
                     ],
         }),
+
+        getHealthRecordById: builder.query<HealthRecord, string>({
+            async queryFn(recordId) {
+                try {
+                    const record = await getHealthRecordById(recordId);
+
+                    return {
+                        data: record,
+                    };
+                } catch (error) {
+                    return {
+                        error: {
+                            code: 'NOT_FOUND',
+                            message:
+                                error instanceof Error
+                                    ? error.message
+                                    : 'Health record not found.',
+                        },
+                    };
+                }
+            },
+
+            providesTags: (_result, _error, recordId) => [
+                {
+                    type: 'HealthRecord' as const,
+                    id: recordId,
+                },
+            ],
+        }),
     }),
 });
 
 export const {
     useGetHealthRecordsQuery,
+    useGetHealthRecordByIdQuery,
 } = healthRecordsApi;
+

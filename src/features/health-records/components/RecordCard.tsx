@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import {
+    Pressable,
     StyleSheet,
     Text,
     View,
@@ -9,6 +10,7 @@ import type { HealthRecord } from '../types/health-record.types';
 
 type Props = {
     record: HealthRecord;
+    onPress?: (record: HealthRecord) => void;
 };
 
 const TYPE_CONFIG: Record<
@@ -47,7 +49,7 @@ const TYPE_CONFIG: Record<
     },
 };
 
-function RecordCardComponent({ record }: Props) {
+function RecordCardComponent({ record, onPress }: Props) {
     const date = new Date(record.date);
     const config = TYPE_CONFIG[record.type] ?? {
         label: record.type,
@@ -57,7 +59,12 @@ function RecordCardComponent({ record }: Props) {
     };
 
     return (
-        <View style={styles.card}>
+        <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Open ${record.title}`}
+            onPress={() => onPress?.(record)}
+            style={styles.card}>
+
             {/* Top Type Pill & Date */}
             <View style={styles.header}>
                 <View style={[styles.typeBadge, { backgroundColor: config.bg }]}>
@@ -113,9 +120,10 @@ function RecordCardComponent({ record }: Props) {
                     ))}
                 </View>
             ) : null}
-        </View>
+        </Pressable>
     );
 }
+
 
 export const RecordCard = memo(
     RecordCardComponent,
