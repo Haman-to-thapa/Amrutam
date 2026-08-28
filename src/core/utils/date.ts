@@ -14,8 +14,8 @@ export function addDays(date: Date, days: number): Date {
     return result;
 }
 
-export function formatDateLabel(date: Date): string {
-    return date.toLocaleDateString('en-IN', {
+export function formatDateLabel(date: Date, locale = 'en-IN'): string {
+    return date.toLocaleDateString(locale, {
         weekday: 'short',
         day: 'numeric',
         month: 'short',
@@ -30,9 +30,10 @@ export function formatDateParam(date: Date): string {
     return `${year}-${month}-${day}`;
 }
 
-export function formatTime(isoDate: string): string {
-    return new Date(isoDate).toLocaleTimeString('en-IN', {
+export function formatTime(isoDate: string, locale = 'en-IN'): string {
+    return new Date(isoDate).toLocaleTimeString(locale, {
         hour: 'numeric',
         minute: '2-digit',
     });
-}
+}
+

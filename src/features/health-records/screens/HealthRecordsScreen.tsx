@@ -33,12 +33,14 @@ import type {
 } from '../types/health-record.types';
 import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '@/app/providers/ThemeProvider';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const PAGE_SIZE = 50;
 
 export function HealthRecordsScreen() {
     const { t } = useTranslation();
     const { theme } = useAppTheme();
+    const insets = useSafeAreaInsets();
     const navigation =
         useNavigation<NativeStackNavigationProp<HealthRecordsStackParamList, 'HealthRecords'>>();
 
@@ -56,7 +58,6 @@ export function HealthRecordsScreen() {
     // Reset pagination when search or filters change
     useEffect(() => {
         setPage(1);
-        setLoadedRecords([]);
     }, [debouncedSearch, recordType, selectedTag]);
 
     const params = useMemo(
@@ -83,30 +84,32 @@ export function HealthRecordsScreen() {
 
     // Accumulate paginated records
     useEffect(() => {
-        if (!data) {
+        if (!data?.data) {
             return;
         }
 
-        setLoadedRecords(currentRecords => {
-            if (page === 1) {
-                return data.data;
-            }
+        if (page === 1) {
+            setLoadedRecords(data.data);
+        } else {
+            setLoadedRecords(currentRecords => {
+                const existingIds = new Set(
+                    currentRecords.map(record => record.id),
+                );
 
-            const existingIds = new Set(
-                currentRecords.map(record => record.id),
-            );
+                const newRecords = data.data.filter(
+                    record => !existingIds.has(record.id),
+                );
 
-            const newRecords = data.data.filter(
-                record => !existingIds.has(record.id),
-            );
-
-            return [...currentRecords, ...newRecords];
-        });
+                return [...currentRecords, ...newRecords];
+            });
+        }
     }, [data, page]);
 
+    const recordsToDisplay = loadedRecords.length > 0 ? loadedRecords : (data?.data ?? []);
+
     const sections = useMemo(
-        () => groupRecordsByMonthYear(loadedRecords),
-        [loadedRecords],
+        () => groupRecordsByMonthYear(recordsToDisplay),
+        [recordsToDisplay],
     );
 
     const hasFilters = Boolean(
@@ -136,10 +139,12 @@ export function HealthRecordsScreen() {
         setPage(currentPage => currentPage + 1);
     }, [data?.hasNextPage, isFetching]);
 
-    const handleRefresh = useCallback(() => {
+    const handleRefresh = useCallback(async () => {
         setPage(1);
-        setLoadedRecords([]);
-        refetch();
+        const res = await refetch();
+        if (res.data?.data) {
+            setLoadedRecords(res.data.data);
+        }
     }, [refetch]);
 
     const renderItem = useCallback(
@@ -230,7 +235,7 @@ export function HealthRecordsScreen() {
             {/* Content Area */}
             {isInitialLoading ? (
                 <LoadingState />
-            ) : isError && loadedRecords.length === 0 ? (
+            ) : isError && recordsToDisplay.length === 0 ? (
                 <ErrorState
                     message={
                         error &&
@@ -242,7 +247,7 @@ export function HealthRecordsScreen() {
                     }
                     onRetry={handleRefresh}
                 />
-            ) : !isFetching && loadedRecords.length === 0 ? (
+            ) : !isFetching && recordsToDisplay.length === 0 ? (
                 <View style={styles.emptyContainer}>
                     <EmptyState
                         title="No Records Found"
@@ -276,7 +281,7 @@ export function HealthRecordsScreen() {
                     maxToRenderPerBatch={12}
                     windowSize={7}
                     removeClippedSubviews
-                    contentContainerStyle={styles.content}
+                    contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]}
                     refreshControl={
                         <RefreshControl
                             refreshing={isFetching && page === 1}

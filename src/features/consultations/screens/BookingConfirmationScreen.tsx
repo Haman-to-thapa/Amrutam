@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 import type { RootStackParamList } from '@/app/navigation/RootNavigator';
 import { formatDateParam, formatTime } from '@/core/utils/date';
@@ -23,6 +25,7 @@ import { useAppDispatch } from '@/store/hooks';
 import { showToast } from '@/store/slices/toastSlice';
 
 import { useAppTheme } from '@/app/providers/ThemeProvider';
+import { useLanguage } from '@/app/providers/LanguageProvider';
 
 type BookingRouteProp = RouteProp<
     RootStackParamList,
@@ -30,6 +33,9 @@ type BookingRouteProp = RouteProp<
 >;
 
 export function BookingConfirmationScreen() {
+    const { t } = useTranslation();
+    const { language } = useLanguage();
+    const insets = useSafeAreaInsets();
     const { theme } = useAppTheme();
     const route = useRoute<BookingRouteProp>();
     const navigation =
@@ -48,30 +54,33 @@ export function BookingConfirmationScreen() {
     const { doctor, slot } = route.params;
 
     const [patientName, setPatientName] =
-        useState('');
+        useState('Haman Thapa');
 
     const formattedDate = useMemo(() => {
-        return new Date(slot.startsAt).toLocaleDateString('en-IN', {
-            weekday: 'short',
+        return new Date(slot.startsAt).toLocaleDateString(language === 'hi' ? 'hi-IN' : 'en-IN', {
+            weekday: 'long',
             day: 'numeric',
-            month: 'short',
+            month: 'long',
             year: 'numeric',
         });
-    }, [slot.startsAt]);
+    }, [slot.startsAt, language]);
+
+    const specializationText = t(
+        `specializations.${doctor.specialization}` as const,
+        { defaultValue: doctor.specialization },
+    );
+    const modeText = t(`modes.${slot.mode}` as const, {
+        defaultValue: slot.mode,
+    });
 
     const handleConfirm = async () => {
-        const name = patientName.trim();
-
-        if (name.length < 2) {
-            dispatch(
-                showToast({
-                    type: 'warning',
-                    message: 'Please enter a valid patient name.',
-                }),
-            );
-
+        if (!patientName.trim()) {
             return;
         }
+
+        const dateParam = formatDateParam(
+            new Date(slot.startsAt),
+        );
 
         const idempotencyKey = createIdempotencyKey(
             `${doctor.id}-${slot.id}`,
@@ -80,9 +89,9 @@ export function BookingConfirmationScreen() {
         const request = {
             doctorId: doctor.id,
             slotId: slot.id,
-            patientName: name,
+            patientName: patientName.trim(),
             mode: slot.mode,
-            date: formatDateParam(new Date(slot.startsAt)),
+            date: dateParam,
             idempotencyKey,
         };
 
@@ -110,7 +119,7 @@ export function BookingConfirmationScreen() {
             dispatch(
                 showToast({
                     type: 'success',
-                    message: 'Consultation booked successfully.',
+                    message: t('consultation.bookingSuccess'),
                 }),
             );
 
@@ -142,12 +151,15 @@ export function BookingConfirmationScreen() {
             style={[styles.container, { backgroundColor: theme.colors.background }]}
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
             <ScrollView
-                contentContainerStyle={styles.scrollContent}
+                contentContainerStyle={[
+                    styles.scrollContent,
+                    { paddingBottom: insets.bottom + 120 },
+                ]}
                 keyboardShouldPersistTaps="handled"
                 automaticallyAdjustKeyboardInsets={true}
                 showsVerticalScrollIndicator={false}>
                 <Text style={[styles.heading, { color: theme.colors.text }]}>
-                    Confirm Consultation
+                    {t('consultation.confirmBooking')}
                 </Text>
 
                 {/* Doctor & Appointment Summary Card */}
@@ -161,7 +173,7 @@ export function BookingConfirmationScreen() {
                         <View style={styles.doctorInfo}>
                             <Text style={[styles.doctorName, { color: theme.colors.text }]}>{doctor.name}</Text>
                             <Text style={[styles.specialization, { color: theme.colors.primary }]}>
-                                {doctor.specialization}
+                                {specializationText}
                             </Text>
                         </View>
                     </View>
@@ -184,7 +196,7 @@ export function BookingConfirmationScreen() {
                         <View style={styles.gridItem}>
                             <Text style={[styles.label, { color: theme.colors.textSecondary }]}>Mode</Text>
                             <Text style={[styles.value, styles.capitalize, { color: theme.colors.text }]}>
-                                {slot.mode}
+                                {modeText}
                             </Text>
                         </View>
 
@@ -222,7 +234,7 @@ export function BookingConfirmationScreen() {
                             styles.disabledButton,
                     ]}>
                     <Text style={styles.buttonText}>
-                        {isBooking ? 'Booking...' : 'Confirm & Book'}
+                        {isBooking ? t('common.loading') : t('consultation.book')}
                     </Text>
                 </Pressable>
             </ScrollView>

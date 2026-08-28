@@ -40,11 +40,13 @@ import type {
 } from '../types/shop.types';
 import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '@/app/providers/ThemeProvider';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const PAGE_SIZE = 30;
 
 export function ProductListScreen() {
     const { t } = useTranslation();
+    const insets = useSafeAreaInsets();
     const { theme } = useAppTheme();
     const navigation =
         useNavigation<NativeStackNavigationProp<ShopStackParamList, 'Products'>>();
@@ -210,9 +212,14 @@ export function ProductListScreen() {
     );
 
 
-    const handleRefresh = useCallback(() => {
+    const productsToDisplay = loadedProducts.length > 0 ? loadedProducts : (data?.data ?? []);
+
+    const handleRefresh = useCallback(async () => {
         setPage(1);
-        refetch();
+        const res = await refetch();
+        if (res.data?.data) {
+            setLoadedProducts(res.data.data);
+        }
     }, [refetch]);
 
     if (isLoading && page === 1) {
@@ -371,7 +378,7 @@ export function ProductListScreen() {
 
 
             <FlashList
-                data={loadedProducts}
+                data={productsToDisplay}
                 renderItem={renderItem}
                 keyExtractor={item => item.id}
                 onEndReached={handleEndReached}
@@ -379,10 +386,11 @@ export function ProductListScreen() {
                 refreshing={isFetching && page === 1}
                 onRefresh={handleRefresh}
                 showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
                 ListEmptyComponent={
                     !isLoading ? (
                         <EmptyState
-                            title="No products found"
+                            title={t('common.empty')}
                             message="Try adjusting your search query or filters."
                         />
                     ) : null
@@ -390,9 +398,9 @@ export function ProductListScreen() {
                 ListFooterComponent={
                     isFetching && page > 1 ? (
                         <View style={styles.footer}>
-                            <ActivityIndicator color="#1f6f43" />
-                            <Text style={styles.footerText}>
-                                Loading more products...
+                            <ActivityIndicator color={theme.colors.primary} />
+                            <Text style={[styles.footerText, { color: theme.colors.textSecondary }]}>
+                                {t('common.loading')}
                             </Text>
                         </View>
                     ) : null

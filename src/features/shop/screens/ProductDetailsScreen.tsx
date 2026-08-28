@@ -10,6 +10,7 @@ import {
 import type { RouteProp } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 import { useAppDispatch } from '@/store/hooks';
 import { addToCart } from '@/store/slices/cartSlice';
@@ -29,6 +30,7 @@ type ProductDetailsRouteProp = RouteProp<
 >;
 
 export function ProductDetailsScreen() {
+    const { t } = useTranslation();
     const { theme } = useAppTheme();
     const dispatch = useAppDispatch();
     const insets = useSafeAreaInsets();
@@ -48,7 +50,7 @@ export function ProductDetailsScreen() {
             dispatch(
                 showToast({
                     type: 'warning',
-                    message: 'This product is out of stock.',
+                    message: t('shop.outOfStock'),
                 }),
             );
             return;
@@ -65,11 +67,10 @@ export function ProductDetailsScreen() {
         dispatch(
             showToast({
                 type: 'success',
-                message: `Added ${product.name} to cart.`,
+                message: `${product.name} ${t('shop.addToCart')}!`,
             }),
         );
-    }, [dispatch, product]);
-
+    }, [dispatch, product, t]);
 
     if (isLoading) {
         return <LoadingState />;
@@ -94,7 +95,7 @@ export function ProductDetailsScreen() {
     if (!product) {
         return (
             <EmptyState
-                title="Product unavailable"
+                title={t('common.empty')}
                 message="This product could not be found."
             />
         );
@@ -105,11 +106,15 @@ export function ProductDetailsScreen() {
             ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
             : 0;
 
+    const categoryLabel = t(`categories.${product.category}` as const, {
+        defaultValue: product.category,
+    });
+
     return (
         <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
             <ScrollView
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={[styles.content, { backgroundColor: theme.colors.background, paddingBottom: insets.bottom + 90 }]}>
+                contentContainerStyle={[styles.content, { backgroundColor: theme.colors.background, paddingBottom: insets.bottom + 120 }]}>
                 {/* Product Hero Image */}
                 <View style={[styles.imageContainer, { backgroundColor: theme.colors.surface }]}>
                     <Image
@@ -120,7 +125,7 @@ export function ProductDetailsScreen() {
                     />
                     {!product.inStock ? (
                         <View style={styles.outOfStockBadge}>
-                            <Text style={styles.outOfStockBadgeText}>OUT OF STOCK</Text>
+                            <Text style={styles.outOfStockBadgeText}>{t('shop.outOfStock').toUpperCase()}</Text>
                         </View>
                     ) : null}
                 </View>
@@ -129,7 +134,7 @@ export function ProductDetailsScreen() {
                 <View style={styles.details}>
                     {/* Category Pill */}
                     <View style={[styles.categoryPill, { backgroundColor: theme.mode === 'dark' ? '#1f3d2b' : '#e8f5e9', borderColor: theme.mode === 'dark' ? '#2d573d' : '#c8e6c9' }]}>
-                        <Text style={[styles.categoryText, { color: theme.colors.primary }]}>{product.category}</Text>
+                        <Text style={[styles.categoryText, { color: theme.colors.primary }]}>{categoryLabel}</Text>
                     </View>
 
                     {/* Product Name & Wishlist Button */}
@@ -138,14 +143,13 @@ export function ProductDetailsScreen() {
                         <WishlistButton product={product} />
                     </View>
 
-
                     {/* Rating & Reviews */}
                     <View style={styles.ratingRow}>
                         <View style={[styles.ratingBadge, { backgroundColor: theme.mode === 'dark' ? '#3b2f15' : '#fef3c7', borderColor: theme.mode === 'dark' ? '#5c4820' : '#fde68a' }]}>
                             <Text style={[styles.ratingText, { color: theme.mode === 'dark' ? '#fbbf24' : '#92400e' }]}>⭐ {product.rating}</Text>
                         </View>
                         <Text style={[styles.reviewsText, { color: theme.colors.textSecondary }]}>
-                            ({product.reviewCount.toLocaleString('en-IN')} customer reviews)
+                            ({product.reviewCount.toLocaleString('en-IN')} {t('consultation.reviews')})
                         </Text>
                     </View>
 
@@ -178,11 +182,10 @@ export function ProductDetailsScreen() {
                                 product.inStock ? styles.inStockText : styles.outOfStockText,
                             ]}>
                             {product.inStock
-                                ? `In Stock (${product.stockQuantity} units available)`
-                                : 'Currently Out of Stock'}
+                                ? `${t('shop.inStock')} (${product.stockQuantity} units)`
+                                : t('shop.outOfStock')}
                         </Text>
                     </View>
-
 
                     {/* Divider */}
                     <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
@@ -216,15 +219,15 @@ export function ProductDetailsScreen() {
             </ScrollView>
 
             {/* Bottom Sticky Action Bar */}
-            <View style={[styles.bottomBar, { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.border, paddingBottom: Math.max(insets.bottom, 12) }]}>
+            <View style={[styles.bottomBar, { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.border, paddingBottom: Math.max(insets.bottom, 14) }]}>
                 <View style={styles.bottomPriceColumn}>
-                    <Text style={[styles.bottomPriceLabel, { color: theme.colors.textSecondary }]}>Total Price</Text>
+                    <Text style={[styles.bottomPriceLabel, { color: theme.colors.textSecondary }]}>{t('shop.total')}</Text>
                     <Text style={[styles.bottomPriceValue, { color: theme.colors.text }]}>₹{product.price}</Text>
                 </View>
                 <Pressable
                     accessibilityRole="button"
                     accessibilityLabel={
-                        product.inStock ? 'Add product to cart' : 'Product out of stock'
+                        product.inStock ? t('shop.addToCart') : t('shop.outOfStock')
                     }
                     disabled={!product.inStock}
                     onPress={handleAddToCart}
@@ -234,10 +237,9 @@ export function ProductDetailsScreen() {
                         !product.inStock && styles.disabledCartButton,
                     ]}>
                     <Text style={styles.cartButtonText}>
-                        {product.inStock ? '🛍️ Add to Cart' : 'Out of Stock'}
+                        {product.inStock ? `🛍️ ${t('shop.addToCart')}` : t('shop.outOfStock')}
                     </Text>
                 </Pressable>
-
             </View>
         </View>
     );
@@ -487,4 +489,3 @@ const styles = StyleSheet.create({
         fontWeight: '700',
     },
 });
-

@@ -8,6 +8,7 @@ import { ProductDetailsScreen } from '@/features/shop/screens/ProductDetailsScre
 import { WishlistScreen } from '@/features/shop/screens/WishlistScreen';
 import { CartScreen } from '@/features/shop/screens/CartScreen';
 import { CheckoutSummaryScreen } from '@/features/shop/screens/CheckoutSummaryScreen';
+import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 export type ShopStackParamList = {
@@ -24,6 +25,7 @@ const Stack =
     createNativeStackNavigator<ShopStackParamList>();
 
 export function ShopNavigator() {
+    const { t } = useTranslation();
     const { theme } = useAppTheme();
 
     return (
@@ -46,27 +48,27 @@ export function ShopNavigator() {
             <Stack.Screen
                 name="Products"
                 component={ProductListScreen}
-                options={{ title: 'Shop' }}
+                options={{ title: t('nav.shop') }}
             />
             <Stack.Screen
                 name="ProductDetails"
                 component={ProductDetailsScreen}
-                options={{ title: 'Product Details' }}
+                options={{ title: t('shop.productDetails') }}
             />
             <Stack.Screen
                 name="Wishlist"
                 component={WishlistScreen}
-                options={{ title: 'My Wishlist' }}
+                options={{ title: t('shop.wishlist') }}
             />
             <Stack.Screen
                 name="Cart"
                 component={CartScreen}
-                options={{ title: 'Shopping Cart' }}
+                options={{ title: t('shop.cart') }}
             />
             <Stack.Screen
                 name="Checkout"
                 component={CheckoutSummaryScreen}
-                options={{ title: 'Checkout Summary' }}
+                options={{ title: t('shop.orderSummary') }}
             />
         </Stack.Navigator>
     );

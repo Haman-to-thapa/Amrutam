@@ -9,6 +9,7 @@ export const hi = {
         reset: 'रीसेट करें',
         apply: 'लागू करें',
         empty: 'कोई आइटम नहीं मिला',
+        all: 'सभी',
     },
 
     nav: {
@@ -26,20 +27,48 @@ export const hi = {
         noDoctors: 'कोई डॉक्टर नहीं मिला',
         noDoctorsDesc: 'आपकी खोज से मेल खाने वाला कोई डॉक्टर नहीं मिला।',
         doctorDetails: 'डॉक्टर विवरण',
+        selectDate: 'तारीख चुनें',
         availableSlots: 'उपलब्ध स्लॉट',
+        noSlots: 'कोई स्लॉट उपलब्ध नहीं',
+        noSlotsDesc: 'इस तारीख के लिए कोई परामर्श स्लॉट उपलब्ध नहीं है।',
         upcoming: 'आगामी परामर्श',
         book: 'पुष्टि करें और बुक करें',
         confirmBooking: 'बुकिंग की पुष्टि करें',
-        experience: 'वर्ष अनुभव',
+        experience: 'वर्ष का अनुभव',
+        reviews: 'समीक्षाएं',
         fee: 'परामर्श शुल्क',
         bookingSuccess: 'परामर्श सफलतापूर्वक बुक हुआ।',
         bookingCancelled: 'परामर्श सफलतापूर्वक रद्द हुआ।',
+    },
+
+    modes: {
+        video: 'वीडियो',
+        chat: 'चैट',
+        audio: 'ऑडियो',
+    },
+
+    slotStatus: {
+        available: 'उपलब्ध',
+        booked: 'बुक किया हुआ',
+        expired: 'समाप्त',
+        blocked: 'ब्लॉक',
+    },
+
+    specializations: {
+        all: 'सभी विशेषज्ञताएं',
+        'Ayurvedic Physician': 'आयुर्वेदिक चिकित्सक',
+        Panchakarma: 'पंचकर्म विशेषज्ञ',
+        Dermatology: 'त्वचा रोग विशेषज्ञ',
+        'Digestive Health': 'पाचन एवं उदर रोग',
+        'Women Health': 'महिला स्वास्थ्य',
+        'Stress Management': 'मानसिक शांति एवं तनाव',
     },
 
     shop: {
         title: 'आयुर्वेदिक दुकान',
         subtitle: 'प्रामाणिक स्वास्थ्य और हर्बल उत्पाद',
         products: 'आयुर्वेदिक उत्पाद',
+        productDetails: 'उत्पाद विवरण',
         searchProducts: 'उत्पाद, दवाएं खोजें...',
         addToCart: 'कार्ट में जोड़ें',
         outOfStock: 'स्टॉक में नहीं',
@@ -56,6 +85,16 @@ export const hi = {
         items: 'सामग्री',
     },
 
+    categories: {
+        all: 'सभी श्रेणियां',
+        Supplements: 'हर्बल सप्लीमेंट्स',
+        'Herbal Oils': 'हर्बल व औषधीय तेल',
+        'Digestive Care': 'पाचन देखभाल',
+        'Skin Care': 'त्वचा की देखभाल',
+        'Hair Care': 'केश/बालों की देखभाल',
+        Wellness: 'सामान्य स्वास्थ्य',
+    },
+
     health: {
         title: 'मेडिकल टाइमलाइन',
         subtitle: '10,000+ सत्यापित रोगी स्वास्थ्य रिकॉर्ड',
@@ -65,6 +104,15 @@ export const hi = {
         details: 'रिकॉर्ड विवरण',
         attachments: 'क्लिनिकल अटैचमेंट',
         viewRecord: 'विवरण देखें',
+    },
+
+    recordTypes: {
+        all: 'सभी प्रकार',
+        lab_report: 'लैब रिपोर्ट',
+        prescription: 'दवा पर्चा (प्रिस्क्रिप्शन)',
+        consultation: 'परामर्श सारांश',
+        vaccination: 'टीकाकरण रिकॉर्ड',
+        allergy: 'एलर्जी विवरण',
     },
 
     settings: {

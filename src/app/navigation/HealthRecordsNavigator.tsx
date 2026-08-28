@@ -5,6 +5,7 @@ import {
 
 import { HealthRecordsScreen } from '@/features/health-records/screens/HealthRecordsScreen';
 import { HealthRecordDetailsScreen } from '@/features/health-records/screens/HealthRecordDetailsScreen';
+import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 export type HealthRecordsStackParamList = {
@@ -18,6 +19,7 @@ const Stack =
     createNativeStackNavigator<HealthRecordsStackParamList>();
 
 export function HealthRecordsNavigator() {
+    const { t } = useTranslation();
     const { theme } = useAppTheme();
 
     return (
@@ -40,12 +42,12 @@ export function HealthRecordsNavigator() {
             <Stack.Screen
                 name="HealthRecords"
                 component={HealthRecordsScreen}
-                options={{ title: 'Health Records' }}
+                options={{ title: t('nav.healthRecords') }}
             />
             <Stack.Screen
                 name="HealthRecordDetails"
                 component={HealthRecordDetailsScreen}
-                options={{ title: 'Record Details' }}
+                options={{ title: t('health.details') }}
             />
         </Stack.Navigator>
     );

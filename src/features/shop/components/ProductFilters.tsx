@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 
 import type { ProductCategory } from '../types/shop.types';
+import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 const CATEGORIES: readonly { name: ProductCategory; icon: string }[] = [
@@ -30,6 +31,7 @@ function ProductFiltersComponent({
     selectedCategory,
     onCategoryChange,
 }: Props) {
+    const { t } = useTranslation();
     const { theme } = useAppTheme();
 
     return (
@@ -40,7 +42,7 @@ function ProductFiltersComponent({
                 contentContainerStyle={styles.content}>
                 <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel="All categories"
+                    accessibilityLabel={t('categories.all')}
                     onPress={() => onCategoryChange(undefined)}
                     style={[
                         styles.chip,
@@ -63,18 +65,19 @@ function ProductFiltersComponent({
                                     : theme.colors.text,
                             },
                         ]}>
-                        All
+                        {t('common.all')}
                     </Text>
                 </Pressable>
 
                 {CATEGORIES.map(cat => {
                     const active = selectedCategory === cat.name;
+                    const catLabel = t(`categories.${cat.name}` as const, { defaultValue: cat.name });
 
                     return (
                         <Pressable
                             key={cat.name}
                             accessibilityRole="button"
-                            accessibilityLabel={`Filter ${cat.name}`}
+                            accessibilityLabel={`Filter ${catLabel}`}
                             onPress={() => onCategoryChange(cat.name)}
                             style={[
                                 styles.chip,
@@ -97,7 +100,7 @@ function ProductFiltersComponent({
                                             : theme.colors.text,
                                     },
                                 ]}>
-                                {cat.name}
+                                {catLabel}
                             </Text>
                         </Pressable>
                     );

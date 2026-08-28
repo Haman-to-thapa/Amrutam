@@ -27,14 +27,31 @@ export const en = {
         noDoctors: 'No doctors found',
         noDoctorsDesc: 'There are no doctors matching your search.',
         doctorDetails: 'Doctor Details',
+        selectDate: 'Select Date',
         availableSlots: 'Available Slots',
+        noSlots: 'No slots available',
+        noSlotsDesc: 'No consultation slots are available for this date.',
         upcoming: 'Upcoming Consultations',
         book: 'Confirm & Book',
         confirmBooking: 'Confirm Booking',
-        experience: 'years exp',
-        fee: 'Consultation Fee',
+        experience: 'years experience',
+        reviews: 'reviews',
+        fee: 'consultation fee',
         bookingSuccess: 'Consultation booked successfully.',
         bookingCancelled: 'Consultation cancelled successfully.',
+    },
+
+    modes: {
+        video: 'Video',
+        chat: 'Chat',
+        audio: 'Audio',
+    },
+
+    slotStatus: {
+        available: 'Available',
+        booked: 'Booked',
+        expired: 'Expired',
+        blocked: 'Blocked',
     },
 
     specializations: {
@@ -51,6 +68,7 @@ export const en = {
         title: 'Ayurvedic Shop',
         subtitle: 'Authentic Wellness Formulations',
         products: 'Ayurvedic Products',
+        productDetails: 'Product Details',
         searchProducts: 'Search products, remedies...',
         addToCart: 'Add to Cart',
         outOfStock: 'Out of Stock',

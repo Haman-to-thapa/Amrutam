@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 
 import type { Doctor } from '../types/consultation.types';
+import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 type Props = {
@@ -16,7 +17,13 @@ type Props = {
 };
 
 function DoctorCardComponent({ doctor, onPress }: Props) {
+    const { t } = useTranslation();
     const { theme } = useAppTheme();
+
+    const specializationText = t(
+        `specializations.${doctor.specialization}` as const,
+        { defaultValue: doctor.specialization },
+    );
 
     return (
         <Pressable
@@ -54,7 +61,7 @@ function DoctorCardComponent({ doctor, onPress }: Props) {
                         { color: theme.colors.primary },
                     ]}
                     numberOfLines={1}>
-                    {doctor.specialization}
+                    {specializationText}
                 </Text>
 
                 <Text
@@ -62,7 +69,7 @@ function DoctorCardComponent({ doctor, onPress }: Props) {
                         styles.meta,
                         { color: theme.colors.textSecondary },
                     ]}>
-                    {doctor.experienceYears} years • ⭐ {doctor.rating}
+                    {doctor.experienceYears} {t('consultation.experience')} • ⭐ {doctor.rating}
                 </Text>
 
                 <Text
@@ -70,7 +77,7 @@ function DoctorCardComponent({ doctor, onPress }: Props) {
                         styles.fee,
                         { color: theme.colors.text },
                     ]}>
-                    From ₹{doctor.consultationFee}
+                    ₹{doctor.consultationFee}
                 </Text>
             </View>
         </Pressable>

@@ -19,9 +19,13 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectBookingQueue } from '@/store/selectors/offlineQueueSelectors';
 import { showToast } from '@/store/slices/toastSlice';
 import type { Booking } from '../types/consultation.types';
+import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 export function UpcomingConsultationScreen() {
+    const { t } = useTranslation();
+    const insets = useSafeAreaInsets();
     const { theme } = useAppTheme();
     const dispatch = useAppDispatch();
     const queuedBookings = useAppSelector(selectBookingQueue);
@@ -60,8 +64,7 @@ export function UpcomingConsultationScreen() {
                 dispatch(
                     showToast({
                         type: 'success',
-                        message:
-                            'Consultation cancelled successfully.',
+                        message: t('consultation.bookingCancelled'),
                     }),
                 );
             } catch (err) {
@@ -81,7 +84,7 @@ export function UpcomingConsultationScreen() {
                 );
             }
         },
-        [cancelBooking, dispatch],
+        [cancelBooking, dispatch, t],
     );
 
     const renderItem = useCallback(
@@ -118,7 +121,7 @@ export function UpcomingConsultationScreen() {
     if (bookings.length === 0 && visibleQueue.length === 0) {
         return (
             <EmptyState
-                title="No upcoming consultations"
+                title={t('consultation.noDoctors')}
                 message="Your confirmed consultations will appear here."
             />
         );
@@ -128,7 +131,7 @@ export function UpcomingConsultationScreen() {
         <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
             {isFetching ? (
                 <Text style={[styles.refreshing, { color: theme.colors.textSecondary }]}>
-                    Updating...
+                    {t('common.updating')}
                 </Text>
             ) : null}
 
@@ -160,7 +163,10 @@ export function UpcomingConsultationScreen() {
                         }}
                     />
                 }
-                contentContainerStyle={styles.content}
+                contentContainerStyle={[
+                    styles.content,
+                    { paddingBottom: insets.bottom + 100 },
+                ]}
             />
         </View>
     );

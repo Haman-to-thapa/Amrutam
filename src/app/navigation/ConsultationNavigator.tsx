@@ -8,6 +8,7 @@ import { DoctorDetailsScreen } from '@/features/consultations/screens/DoctorDeta
 import { BookingConfirmationScreen } from '@/features/consultations/screens/BookingConfirmationScreen';
 import { UpcomingConsultationScreen } from '@/features/consultations/screens/UpcomingConsultationScreen';
 
+import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '@/app/providers/ThemeProvider';
 import type { Doctor, DoctorSlot } from '@/features/consultations/types/consultation.types';
 
@@ -28,6 +29,7 @@ const Stack =
     createNativeStackNavigator<ConsultationStackParamList>();
 
 export function ConsultationNavigator() {
+    const { t } = useTranslation();
     const { theme } = useAppTheme();
 
     return (
@@ -50,26 +52,25 @@ export function ConsultationNavigator() {
             <Stack.Screen
                 name="Doctors"
                 component={DoctorListScreen}
-                options={{ title: 'Consultation' }}
+                options={{ title: t('nav.consultation') }}
             />
-
 
             <Stack.Screen
                 name="DoctorDetails"
                 component={DoctorDetailsScreen}
-                options={{ title: 'Doctor Details' }}
+                options={{ title: t('consultation.doctorDetails') }}
             />
 
             <Stack.Screen
                 name="BookingConfirmation"
                 component={BookingConfirmationScreen}
-                options={{ title: 'Confirm Booking' }}
+                options={{ title: t('consultation.confirmBooking') }}
             />
 
             <Stack.Screen
                 name="UpcomingConsultations"
                 component={UpcomingConsultationScreen}
-                options={{ title: 'Upcoming Consultations' }}
+                options={{ title: t('consultation.upcoming') }}
             />
         </Stack.Navigator>
     );

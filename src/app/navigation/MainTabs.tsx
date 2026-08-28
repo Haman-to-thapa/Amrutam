@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import {
     createBottomTabNavigator,
 } from '@react-navigation/bottom-tabs';
@@ -29,8 +29,11 @@ type TabIconProps = {
 };
 
 function TabIcon({ focused, emoji }: TabIconProps) {
+    const { theme } = useAppTheme();
+    const activeBg = theme.mode === 'dark' ? '#1f3d2b' : '#e8f5e9';
+
     return (
-        <View style={[styles.iconContainer, focused && styles.activeIconContainer]}>
+        <View style={[styles.iconContainer, focused && { backgroundColor: activeBg }]}>
             <Text style={[styles.iconText, focused && styles.activeIconText]}>{emoji}</Text>
         </View>
     );
@@ -56,25 +59,42 @@ export function MainTabs() {
     const { t } = useTranslation();
     const insets = useSafeAreaInsets();
     const { theme } = useAppTheme();
-    const bottomPadding = Math.max(insets.bottom, 10);
-    const tabHeight = 56 + bottomPadding;
+
+    // Android software 3-button navigation bar requires at least 34-40dp clearance
+    const isAndroid = Platform.OS === 'android';
+    const bottomPadding = Math.max(insets.bottom, isAndroid ? 36 : 20);
+    const tabHeight = 66 + bottomPadding;
 
     return (
         <Tab.Navigator
             screenOptions={{
                 tabBarActiveTintColor: theme.colors.primary,
                 tabBarInactiveTintColor: theme.colors.textSecondary,
-                tabBarStyle: [
-                    styles.tabBar,
-                    {
-                        height: tabHeight,
-                        paddingBottom: bottomPadding,
-                        backgroundColor: theme.colors.surface,
-                        borderTopColor: theme.colors.border,
-                    },
-                ],
-                tabBarLabelStyle: styles.tabBarLabel,
-                tabBarItemStyle: styles.tabBarItem,
+                tabBarLabelPosition: 'below-icon',
+                tabBarStyle: {
+                    height: tabHeight,
+                    paddingTop: 8,
+                    paddingBottom: bottomPadding,
+                    backgroundColor: theme.colors.surface,
+                    borderTopColor: theme.colors.border,
+                    borderTopWidth: 1,
+                    elevation: 12,
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: -3 },
+                    shadowOpacity: 0.08,
+                    shadowRadius: 6,
+                },
+                tabBarLabelStyle: {
+                    fontSize: 11,
+                    fontWeight: '700',
+                    marginTop: 2,
+                    marginBottom: 4,
+                },
+                tabBarItemStyle: {
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    paddingTop: 6,
+                },
             }}>
 
             <Tab.Screen
@@ -120,44 +140,19 @@ export function MainTabs() {
     );
 }
 
-
-
 const styles = StyleSheet.create({
-    tabBar: {
-        height: 64,
-        paddingBottom: 8,
-        paddingTop: 6,
-        backgroundColor: '#ffffff',
-        borderTopWidth: 1,
-        borderTopColor: '#e5e7eb',
-        elevation: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.06,
-        shadowRadius: 4,
-    },
-    tabBarItem: {
-        paddingVertical: 2,
-    },
-    tabBarLabel: {
-        fontSize: 12,
-        fontWeight: '600',
-        marginTop: 2,
-    },
     iconContainer: {
-        width: 36,
+        width: 38,
         height: 28,
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 14,
     },
-    activeIconContainer: {
-        backgroundColor: '#e8f5e9',
-    },
     iconText: {
-        fontSize: 20,
+        fontSize: 18,
     },
     activeIconText: {
-        fontSize: 21,
+        fontSize: 20,
     },
-});
+});
+

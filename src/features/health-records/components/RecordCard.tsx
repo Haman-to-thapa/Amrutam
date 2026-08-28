@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 
 import type { HealthRecord } from '../types/health-record.types';
+import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 type Props = {
@@ -16,34 +17,29 @@ type Props = {
 
 const TYPE_CONFIG: Record<
     HealthRecord['type'],
-    { label: string; icon: string; bg: string; color: string }
+    { icon: string; bg: string; color: string }
 > = {
     lab_report: {
-        label: 'Lab Report',
         icon: '🧪',
         bg: '#eff6ff',
         color: '#1d4ed8',
     },
     prescription: {
-        label: 'Prescription',
         icon: '💊',
         bg: '#f0fdf4',
         color: '#15803d',
     },
     consultation: {
-        label: 'Consultation',
         icon: '👨‍⚕️',
         bg: '#faf5ff',
         color: '#7e22ce',
     },
     vaccination: {
-        label: 'Vaccination',
         icon: '💉',
         bg: '#ecfeff',
         color: '#0e7490',
     },
     allergy: {
-        label: 'Allergy Alert',
         icon: '⚠️',
         bg: '#fef2f2',
         color: '#b91c1c',
@@ -51,14 +47,18 @@ const TYPE_CONFIG: Record<
 };
 
 function RecordCardComponent({ record, onPress }: Props) {
+    const { t } = useTranslation();
     const { theme } = useAppTheme();
     const date = new Date(record.date);
     const config = TYPE_CONFIG[record.type] ?? {
-        label: record.type,
         icon: '📋',
         bg: '#f3f4f6',
         color: '#374151',
     };
+
+    const typeLabel = t(`recordTypes.${record.type}` as const, {
+        defaultValue: record.type,
+    });
 
     return (
         <Pressable
@@ -78,7 +78,7 @@ function RecordCardComponent({ record, onPress }: Props) {
                 <View style={[styles.typeBadge, { backgroundColor: config.bg }]}>
                     <Text style={styles.typeIcon}>{config.icon}</Text>
                     <Text style={[styles.typeText, { color: config.color }]}>
-                        {config.label}
+                        {typeLabel}
                     </Text>
                 </View>
 

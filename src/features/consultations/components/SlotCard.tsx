@@ -4,6 +4,7 @@ import {
     StyleSheet,
     Text,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { formatTime } from '@/core/utils/date';
 
@@ -21,18 +22,28 @@ type Props = {
 };
 
 function SlotCardComponent({ slot, onPress }: Props) {
+    const { t } = useTranslation();
     const { theme } = useAppTheme();
     const status = getEffectiveSlotStatus(slot);
     const bookable = isSlotBookable(slot);
+
+    const modeText = t(`modes.${slot.mode}` as const, { defaultValue: slot.mode });
+    const statusText = t(`slotStatus.${status}` as const, {
+        defaultValue: status === 'available'
+            ? 'Available'
+            : status === 'booked'
+                ? 'Booked'
+                : status === 'expired'
+                    ? 'Expired'
+                    : 'Blocked',
+    });
 
     return (
         <Pressable
             disabled={!bookable}
             onPress={() => onPress?.(slot)}
             accessibilityRole="button"
-            accessibilityLabel={`${formatTime(
-                slot.startsAt,
-            )}, ${status}`}
+            accessibilityLabel={`${formatTime(slot.startsAt)}, ${statusText}`}
             style={[
                 styles.container,
                 {
@@ -47,7 +58,8 @@ function SlotCardComponent({ slot, onPress }: Props) {
                 style={[
                     styles.time,
                     { color: theme.colors.text },
-                ]}>
+                ]}
+                numberOfLines={1}>
                 {formatTime(slot.startsAt)}
             </Text>
 
@@ -56,7 +68,7 @@ function SlotCardComponent({ slot, onPress }: Props) {
                     styles.mode,
                     { color: theme.colors.textSecondary },
                 ]}>
-                {slot.mode}
+                {modeText}
             </Text>
 
             <Text
@@ -68,13 +80,7 @@ function SlotCardComponent({ slot, onPress }: Props) {
                             : theme.colors.disabled,
                     },
                 ]}>
-                {status === 'available'
-                    ? 'Available'
-                    : status === 'booked'
-                        ? 'Booked'
-                        : status === 'expired'
-                            ? 'Expired'
-                            : 'Blocked'}
+                {statusText}
             </Text>
         </Pressable>
     );
@@ -84,31 +90,35 @@ export const SlotCard = memo(SlotCardComponent);
 
 const styles = StyleSheet.create({
     container: {
-        width: '47%',
-        marginBottom: 12,
+        flex: 1,
+        margin: 6,
         padding: 14,
-        borderRadius: 12,
+        borderRadius: 14,
         borderWidth: 1.5,
+        minHeight: 90,
+        justifyContent: 'center',
     },
 
     disabled: {
-        opacity: 0.5,
+        opacity: 0.45,
     },
 
     time: {
-        fontSize: 16,
-        fontWeight: '700',
+        fontSize: 15,
+        fontWeight: '800',
+        letterSpacing: -0.3,
     },
 
     mode: {
         marginTop: 4,
         fontSize: 12,
-        textTransform: 'capitalize',
+        fontWeight: '500',
     },
 
     status: {
         marginTop: 6,
         fontSize: 12,
-        fontWeight: '600',
+        fontWeight: '700',
     },
-});
+});
+

@@ -10,6 +10,7 @@ import {
 import type {
     DoctorSpecialization,
 } from '../types/consultation.types';
+import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 const FILTERS: readonly (
@@ -36,6 +37,7 @@ function DoctorFiltersComponent({
     selected,
     onChange,
 }: Props) {
+    const { t } = useTranslation();
     const { theme } = useAppTheme();
 
     return (
@@ -50,11 +52,15 @@ function DoctorFiltersComponent({
                         ? selected === undefined
                         : selected === filter;
 
+                    const label = isAll
+                        ? t('common.all')
+                        : t(`specializations.${filter}` as const);
+
                     return (
                         <Pressable
                             key={filter}
                             accessibilityRole="button"
-                            accessibilityLabel={`Filter by ${filter}`}
+                            accessibilityLabel={`Filter by ${label}`}
                             onPress={() =>
                                 onChange(
                                     isAll
@@ -83,7 +89,7 @@ function DoctorFiltersComponent({
                                         fontWeight: active ? '700' : '500',
                                     },
                                 ]}>
-                                {filter}
+                                {label}
                             </Text>
                         </Pressable>
                     );

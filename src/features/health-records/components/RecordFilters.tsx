@@ -8,19 +8,19 @@ import {
 } from 'react-native';
 
 import type { HealthRecordType } from '../types/health-record.types';
+import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 const RECORD_TYPES: readonly {
     value: HealthRecordType | undefined;
-    label: string;
     icon: string;
 }[] = [
-    { value: undefined, label: 'All Records', icon: '📋' },
-    { value: 'lab_report', label: 'Lab Report', icon: '🧪' },
-    { value: 'prescription', label: 'Prescription', icon: '💊' },
-    { value: 'consultation', label: 'Consultation', icon: '👨‍⚕️' },
-    { value: 'vaccination', label: 'Vaccination', icon: '💉' },
-    { value: 'allergy', label: 'Allergy', icon: '⚠️' },
+    { value: undefined, icon: '📋' },
+    { value: 'lab_report', icon: '🧪' },
+    { value: 'prescription', icon: '💊' },
+    { value: 'consultation', icon: '👨‍⚕️' },
+    { value: 'vaccination', icon: '💉' },
+    { value: 'allergy', icon: '⚠️' },
 ];
 
 type Props = {
@@ -34,6 +34,7 @@ function RecordFiltersComponent({
     selectedType,
     onTypeChange,
 }: Props) {
+    const { t } = useTranslation();
     const { theme } = useAppTheme();
 
     return (
@@ -43,14 +44,17 @@ function RecordFiltersComponent({
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.content}>
                 {RECORD_TYPES.map(option => {
-                    const active =
-                        selectedType === option.value;
+                    const active = selectedType === option.value;
+                    const label = t(
+                        `recordTypes.${option.value ?? 'all'}` as const,
+                        { defaultValue: option.value ?? 'All' },
+                    );
 
                     return (
                         <Pressable
-                            key={option.label}
+                            key={option.value ?? 'all'}
                             accessibilityRole="button"
-                            accessibilityLabel={`Filter ${option.label}`}
+                            accessibilityLabel={`Filter ${label}`}
                             onPress={() =>
                                 onTypeChange(option.value)
                             }
@@ -75,7 +79,7 @@ function RecordFiltersComponent({
                                             : theme.colors.text,
                                     },
                                 ]}>
-                                {option.label}
+                                {label}
                             </Text>
                         </Pressable>
                     );

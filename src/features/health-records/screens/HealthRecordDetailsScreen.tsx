@@ -12,18 +12,20 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LoadingState } from '@/components/feedback/LoadingState';
 import { ErrorState } from '@/components/feedback/ErrorState';
 import { EmptyState } from '@/components/feedback/EmptyState';
+import { useTranslation } from 'react-i18next';
 
 import type { HealthRecordsStackParamList } from '@/app/navigation/HealthRecordsNavigator';
 import { useHealthRecordDetails } from '../hooks/useHealthRecordDetails';
 import { AttachmentPreview } from '../components/AttachmentPreview';
 import { useAppTheme } from '@/app/providers/ThemeProvider';
+import { useLanguage } from '@/app/providers/LanguageProvider';
 
 const TYPE_CONFIG = {
-    lab_report: { label: 'Lab Report', icon: '🧪', bg: '#eff6ff', color: '#1d4ed8' },
-    prescription: { label: 'Prescription', icon: '💊', bg: '#f0fdf4', color: '#15803d' },
-    consultation: { label: 'Consultation', icon: '👨‍⚕️', bg: '#faf5ff', color: '#7e22ce' },
-    vaccination: { label: 'Vaccination', icon: '💉', bg: '#ecfeff', color: '#0e7490' },
-    allergy: { label: 'Allergy Alert', icon: '⚠️', bg: '#fef2f2', color: '#b91c1c' },
+    lab_report: { icon: '🧪', bg: '#eff6ff', color: '#1d4ed8' },
+    prescription: { icon: '💊', bg: '#f0fdf4', color: '#15803d' },
+    consultation: { icon: '👨‍⚕️', bg: '#faf5ff', color: '#7e22ce' },
+    vaccination: { icon: '💉', bg: '#ecfeff', color: '#0e7490' },
+    allergy: { icon: '⚠️', bg: '#fef2f2', color: '#b91c1c' },
 } as const;
 
 type DetailsRouteProp = RouteProp<
@@ -32,6 +34,8 @@ type DetailsRouteProp = RouteProp<
 >;
 
 export function HealthRecordDetailsScreen() {
+    const { t } = useTranslation();
+    const { language } = useLanguage();
     const { theme } = useAppTheme();
     const insets = useSafeAreaInsets();
     const route = useRoute<DetailsRouteProp>();
@@ -50,13 +54,13 @@ export function HealthRecordDetailsScreen() {
             return '';
         }
 
-        return new Date(record.date).toLocaleDateString('en-IN', {
+        return new Date(record.date).toLocaleDateString(language === 'hi' ? 'hi-IN' : 'en-IN', {
             weekday: 'long',
             day: 'numeric',
             month: 'long',
             year: 'numeric',
         });
-    }, [record]);
+    }, [record, language]);
 
     if (isLoading) {
         return <LoadingState />;
@@ -81,31 +85,34 @@ export function HealthRecordDetailsScreen() {
     if (!record) {
         return (
             <EmptyState
-                title="Record unavailable"
+                title={t('common.empty')}
                 message="This health record could not be found."
             />
         );
     }
 
     const typeConfig = TYPE_CONFIG[record.type] ?? {
-        label: record.type,
         icon: '📋',
         bg: '#f3f4f6',
         color: '#374151',
     };
+
+    const typeLabel = t(`recordTypes.${record.type}` as const, {
+        defaultValue: record.type,
+    });
 
     return (
         <ScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={[
                 styles.content,
-                { backgroundColor: theme.colors.background, paddingBottom: insets.bottom + 32 },
+                { backgroundColor: theme.colors.background, paddingBottom: insets.bottom + 120 },
             ]}>
             {/* Header Type Badge & Title */}
             <View style={[styles.typeBadge, { backgroundColor: typeConfig.bg }]}>
                 <Text style={styles.typeIcon}>{typeConfig.icon}</Text>
                 <Text style={[styles.typeText, { color: typeConfig.color }]}>
-                    {typeConfig.label}
+                    {typeLabel}
                 </Text>
             </View>
 

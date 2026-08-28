@@ -23,11 +23,13 @@ import type { RootStackParamList } from '@/app/navigation/RootNavigator';
 
 import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '@/app/providers/ThemeProvider';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const PAGE_SIZE = 30;
 
 export function DoctorListScreen() {
     const { t } = useTranslation();
+    const insets = useSafeAreaInsets();
     const { theme } = useAppTheme();
     const navigation =
         useNavigation<NativeStackNavigationProp<RootStackParamList, 'Doctors'>>();
@@ -48,6 +50,8 @@ export function DoctorListScreen() {
             },
         });
 
+    const doctors = data?.data ?? [];
+
     const renderItem = useCallback(
         ({ item }: { item: Doctor }) => (
             <DoctorCard
@@ -63,19 +67,20 @@ export function DoctorListScreen() {
         [navigation],
     );
 
-    const doctors = data?.data ?? [];
-
     return (
         <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+            <OfflineDataNotice message="Showing cached doctors list. Connect to internet for live updates." />
             <View style={styles.header}>
-                <Text style={[styles.title, { color: theme.colors.text }]}>{t('consultation.title')}</Text>
-                <OfflineDataNotice message="Showing cached doctors list. Connect to internet for live updates." />
+                <Text style={[styles.title, { color: theme.colors.text }]}>
+                    {t('consultation.title')}
+                </Text>
 
                 <Input
                     value={search}
                     onChangeText={setSearch}
                     placeholder={t('consultation.searchDoctors')}
-                    accessibilityLabel={t('consultation.searchDoctors')}
+                    accessibilityLabel="Search doctors"
+                    style={{ marginBottom: 12 }}
                 />
 
                 <DoctorFilters
@@ -113,7 +118,7 @@ export function DoctorListScreen() {
                     renderItem={renderItem}
                     keyExtractor={item => item.id}
                     showsVerticalScrollIndicator={false}
-                    contentContainerStyle={styles.list}
+                    contentContainerStyle={[styles.list, { paddingBottom: insets.bottom + 100 }]}
                 />
             )}
         </View>

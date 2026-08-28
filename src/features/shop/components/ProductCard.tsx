@@ -9,6 +9,7 @@ import {
 
 import type { Product } from '../types/shop.types';
 import { WishlistButton } from './WishlistButton';
+import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '@/app/providers/ThemeProvider';
 
 type Props = {
@@ -17,7 +18,12 @@ type Props = {
 };
 
 function ProductCardComponent({ product, onPress }: Props) {
+    const { t } = useTranslation();
     const { theme } = useAppTheme();
+
+    const categoryLabel = t(`categories.${product.category}` as const, {
+        defaultValue: product.category,
+    });
 
     return (
         <Pressable
@@ -56,7 +62,7 @@ function ProductCardComponent({ product, onPress }: Props) {
                         styles.category,
                         { color: theme.colors.textSecondary },
                     ]}>
-                    {product.category}
+                    {categoryLabel}
                 </Text>
 
                 <Text
@@ -81,10 +87,11 @@ function ProductCardComponent({ product, onPress }: Props) {
                             styles.outOfStock,
                             { color: theme.colors.danger },
                         ]}>
-                        Out of stock
+                        {t('shop.outOfStock')}
                     </Text>
                 ) : null}
             </View>
+
 
             <View style={styles.wishlistWrapper}>
                 <WishlistButton product={product} />
