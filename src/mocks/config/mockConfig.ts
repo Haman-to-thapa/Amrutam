@@ -8,7 +8,7 @@ export type MockFailureMode =
     | 'session_expired';
 
 export const mockConfig = {
-    enabled: __DEV__,
+    enabled: true,
 
     latencyMs: {
         min: 50,

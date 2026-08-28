@@ -42,7 +42,7 @@ function SyncStatusComponent() {
     if (syncingCount > 0) {
         return (
             <View
-                accessibilityRole="status"
+                accessibilityRole="alert"
                 style={[
                     styles.container,
                     {
@@ -65,7 +65,7 @@ function SyncStatusComponent() {
     if (failedCount > 0) {
         return (
             <View
-                accessibilityRole="status"
+                accessibilityRole="alert"
                 style={[
                     styles.container,
                     {

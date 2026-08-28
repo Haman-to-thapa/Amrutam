@@ -28,7 +28,7 @@ function OfflineDataNoticeComponent({
 
     return (
         <View
-            accessibilityRole="status"
+            accessibilityRole="alert"
             style={[
                 styles.container,
                 {

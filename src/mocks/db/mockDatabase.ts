@@ -20,21 +20,55 @@ export type MockDatabase = {
     bookings: Booking[];
 };
 
+let _doctors: Doctor[] | null = null;
+let _products: Product[] | null = null;
+let _healthRecords: HealthRecord[] | null = null;
+let _bookings: Booking[] = [];
+
 export const mockDatabase: MockDatabase = {
-    doctors: generateDoctors(
-        MOCK_DATA_CONFIG.doctors,
-        MOCK_DATA_CONFIG.seed + 1,
-    ),
+    get doctors() {
+        if (!_doctors) {
+            _doctors = generateDoctors(
+                MOCK_DATA_CONFIG.doctors,
+                MOCK_DATA_CONFIG.seed + 1,
+            );
+        }
+        return _doctors;
+    },
+    set doctors(val: Doctor[]) {
+        _doctors = val;
+    },
 
-    products: generateProducts(
-        MOCK_DATA_CONFIG.products,
-        MOCK_DATA_CONFIG.seed + 2,
-    ),
+    get products() {
+        if (!_products) {
+            _products = generateProducts(
+                MOCK_DATA_CONFIG.products,
+                MOCK_DATA_CONFIG.seed + 2,
+            );
+        }
+        return _products;
+    },
+    set products(val: Product[]) {
+        _products = val;
+    },
 
-    healthRecords: generateHealthRecords(
-        MOCK_DATA_CONFIG.healthRecords,
-        MOCK_DATA_CONFIG.seed + 3,
-    ),
+    get healthRecords() {
+        if (!_healthRecords) {
+            _healthRecords = generateHealthRecords(
+                MOCK_DATA_CONFIG.healthRecords,
+                MOCK_DATA_CONFIG.seed + 3,
+            );
+        }
+        return _healthRecords;
+    },
+    set healthRecords(val: HealthRecord[]) {
+        _healthRecords = val;
+    },
 
-    bookings: [],
+    get bookings() {
+        return _bookings;
+    },
+    set bookings(val: Booking[]) {
+        _bookings = val;
+    },
 };
